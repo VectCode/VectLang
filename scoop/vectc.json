@@ -9,7 +9,7 @@
             "hash": "2dff75a620cce8b5c2a1d9ef482d0f3d3d902061583e0196e2deb2f88c722b3d"
         }
     },
-    "bin": "vectc.exe",
+    "bin": ["vectc.exe", ["vectc.exe", "vect"]],
     "checkver": {
         "url": "https://vect.onrender.com/dl/version.txt",
         "regex": "([\\d.]+)"
