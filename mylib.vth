@@ -1,0 +1,4 @@
+cmt test library header
+vectfn double.x
+    (d.x*2)
+    rtn d

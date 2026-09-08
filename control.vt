@@ -1,0 +1,32 @@
+vt.init
+mvga.vth
+(main)
+branch
+
+vectfn main
+    x15
+    
+    cmt If / If-Else branching
+    if x > 10
+        echo "x is greater than 10"
+    if x <= 10
+        echo "x is 10 or less"
+
+    cmt Fixed 10-step iteration loop
+    counter0
+    echo "Starting lo10 loop:"
+    lo10
+        echo counter
+        (counter.counter+1)
+
+    cmt Conditional While Loop (lo10w)
+    running1
+    val0
+    echo "Starting lo10w conditional loop:"
+    lo10w running == 1
+        echo val
+        (val.val+1)
+        if val == 3
+            running0
+
+main()

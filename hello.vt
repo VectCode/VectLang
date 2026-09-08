@@ -1,0 +1,10 @@
+vt.init
+mvga.vth
+(main)
+branch
+
+vectfn main
+    echo "Hello, World!"
+    echo "Vect (.vt) System Initialized."
+
+main()

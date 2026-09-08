@@ -1,0 +1,15 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    x10
+    if x == 10
+        echo "equal"
+    els
+        echo "not equal"
+    if x == 5
+        echo "five"
+    els
+        echo "not five"
+main()

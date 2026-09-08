@@ -1,0 +1,8 @@
+vt.init
+mylib.vth
+(main)
+branch
+vectfn main
+    (r.double 21)
+    echo r
+main()

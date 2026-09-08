@@ -1,0 +1,32 @@
+vt.init
+mvga.vth
+(main)
+branch
+
+vectfn main
+    cmt Variable assignment
+    a10
+    b20
+    
+    cmt Target-based addition (c = a + b)
+    (c.a+b)
+    echo "Sum:"
+    echo c
+    
+    cmt Square Root
+    val16
+    (root.sqrt.val)
+    echo "Square Root of 16:"
+    echo root
+    
+    cmt Bitwise Shift Left (10 << 2 = 40)
+    (shlRes.bit shl a, 2)
+    echo "Shift Left (10 << 2):"
+    echo shlRes
+    
+    cmt Bitwise Shift Right (20 >> 1 = 10)
+    (shrRes.bit shr b, 1)
+    echo "Shift Right (20 >> 1):"
+    echo shrRes
+
+main()

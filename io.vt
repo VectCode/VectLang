@@ -1,0 +1,25 @@
+vt.init
+mvga.vth
+(main)
+branch
+
+vectfn main
+    vga0x320200
+    
+    echo "Press any key to test input..."
+    
+    cmt Dynamic timer overlay updating every 100ms in-place
+    timer0
+    lo1000w true
+        in(key)
+        
+        if key > 0
+            echo "Key pressed ASCII code:"
+            echo key
+            
+        (timer.timer+1)
+        
+        cmt Overwrites value in-place every 100 milliseconds
+        echow timer, 100
+
+main()

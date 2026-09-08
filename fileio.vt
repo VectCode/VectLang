@@ -1,0 +1,13 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    fopen fh, "vect_test.txt", "w"
+    fwrite fh, "hello vect"
+    fclose fh
+    fopen fr, "vect_test.txt", "r"
+    (s.fread fr, 64)
+    fclose fr
+    echo s
+main()

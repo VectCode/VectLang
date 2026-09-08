@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Examples — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl on" href="examples.html">Examples</a>
+  <a class="nl" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.1 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <h1 style="margin-top:36px">Examples</h1>
+  <p style="color:var(--mut)">Every snippet below is real Vect that runs on <code>vectc</code>. Run with <code>vectc file.vt</code>.</p>
+
+  <div class="codehead"><b>1 · Variables &amp; math</b><button data-copy="e1">copy</button></div>
+<pre><code id="e1">vectfn main
+    a10
+    b20
+    (c.a+b)              cmt c = 30
+    echo "Sum:"
+    echo c
+    val16
+    (root.sqrt.val)      cmt root = 4
+    echo root
+    (shlRes.bit shl a, 2)   cmt 10 &lt;&lt; 2 = 40
+    echo shlRes
+    (shrRes.bit shr b, 1)   cmt 20 &gt;&gt; 1 = 10
+    echo shrRes
+main()</code></pre>
+
+  <div class="codehead"><b>2 · Branching &amp; loops</b><button data-copy="e2">copy</button></div>
+<pre><code id="e2">vectfn main
+    x15
+    if x &gt; 10
+        echo "x is greater than 10"
+    els
+        echo "x is 10 or less"
+    counter0
+    lo10
+        echo counter
+        (counter.counter+1)
+    running1
+    val0
+    lo10w running == 1
+        echo val
+        (val.val+1)
+        if val == 3
+            running0
+main()</code></pre>
+
+  <div class="codehead"><b>3 · Functions</b><button data-copy="e3">copy</button></div>
+<pre><code id="e3">vectfn add.a, b
+    (sum.a+b)
+    rtn sum
+vectfn main
+    (result.add 25, 75)
+    echo "Function Result (25 + 75):"
+    echo result
+main()</code></pre>
+
+  <div class="codehead"><b>4 · Arrays</b><button data-copy="e4">copy</button></div>
+<pre><code id="e4">vectfn main
+    arr(5)
+    set arr, 0, 10
+    set arr, 1, 20
+    set arr, 2, 99
+    (x.get arr, 2)
+    echo "Value at index 2:"
+    echo x
+main()</code></pre>
+
+  <div class="codehead"><b>5 · Files</b><button data-copy="e5">copy</button></div>
+<pre><code id="e5">vectfn main
+    fopen fh, "notes.txt", "w"
+    fwrite fh, "hello vect"
+    fclose fh
+    fopen fr, "notes.txt", "r"
+    (s.fread fr, 64)
+    fclose fr
+    echo s
+main()</code></pre>
+
+  <div class="codehead"><b>6 · Input &amp; live refresh</b><button data-copy="e6">copy</button></div>
+<pre><code id="e6">vectfn main
+    vga0x320200
+    echo "Press any key to test input..."
+    timer0
+    lo1000w true
+        in(key)
+        if key &gt; 0
+            echo "Key pressed ASCII code:"
+            echo key
+        (timer.timer+1)
+        echow timer, 100
+main()</code></pre>
+
+  <div class="codehead"><b>7 · Header library (.vth)</b><button data-copy="e7">copy</button></div>
+<pre><code id="e7">cmt mylib.vth — reusable functions
+vectfn double.x
+    (d.x*2)
+    rtn d</code></pre>
+<pre><code>cmt use it: name the file in the header
+vt.init
+mylib.vth
+(main)
+branch
+vectfn main
+    (r.double 21)
+    echo r          cmt 42
+main()</code></pre>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.1</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

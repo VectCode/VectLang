@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vect — ultra-compact low-level language</title>
+<meta name="description" content="Vect (.vt) is a minimalist low-level programming language with ultra-compact syntax.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl on" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.1 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Code dense. <b>Run fast.</b></h1>
+    <p class="sub">Vect is a minimalist low-level language: whole programs in a handful of lines, direct memory and hardware primitives, zero boilerplate.</p>
+    <div class="cta">
+      <a class="btn pri" href="download.html">Get Vect</a>
+      <a class="btn" href="examples.html">See examples</a>
+    </div>
+    <div class="term"><span class="c"># install (Windows, more options on download page)</span><br><span class="p">></span> irm https://vect.onrender.com/dl/vectc-v0.2.1-windows-x64.zip -OutFile vect.zip</div>
+  </section>
+
+  <div class="grid">
+    <div class="card"><h3>Ultra-compact</h3><p><code>x10</code> declares <code>x = 10</code>. <code>(c.a+b)</code> is <code>c = a + b</code>. No semicolons, no braces.</p></div>
+    <div class="card"><h3>Low-level</h3><p>Arrays, pointers, port I/O, VGA pixel primitives and fixed-point math built in.</p></div>
+    <div class="card"><h3>Real toolchain</h3><p><code>vectc</code> compiles <code>.vt</code> to bytecode and runs it on a stack VM. <code>--dump</code> shows the bytecode.</p></div>
+    <div class="card"><h3>Scriptable I/O</h3><p><code>echo</code>, <code>echow</code>, <code>in()</code> plus file primitives <code>fopen/fread/fwrite/fclose</code>.</p></div>
+  </div>
+
+  <div class="codehead"><b>hello.vt</b><button data-copy="ex1">copy</button></div>
+<pre><code id="ex1">vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "Hello, World!"
+    echo "Vect (.vt) System Initialized."
+main()</code></pre>
+
+  <div class="codehead"><b>math + functions</b><button data-copy="ex2">copy</button></div>
+<pre><code id="ex2">vectfn add.a, b
+    (sum.a+b)
+    rtn sum
+vectfn main
+    a10
+    b20
+    (result.add 25, 75)
+    echo result       cmt 100
+main()</code></pre>
+
+  <p style="color:var(--mut)">Next: <a href="examples.html">more examples →</a> · <a href="docs.html">full reference →</a></p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.1</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

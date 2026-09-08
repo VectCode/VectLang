@@ -1,0 +1,4 @@
+cmt MVGA standard helper header
+vectfn vgaver
+    v0
+    rtn v

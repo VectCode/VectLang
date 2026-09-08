@@ -1,0 +1,21 @@
+vt.init
+mvga.vth
+(main)
+branch
+
+vectfn main
+    cmt Allocate memory array of 5 elements
+    arr(5)
+    
+    cmt Write values to indices
+    set arr, 0, 10
+    set arr, 1, 20
+    set arr, 2, 99
+    
+    cmt Read index 2 into variable x
+    (x.get arr, 2)
+    
+    echo "Value at index 2:"
+    echo x
+
+main()

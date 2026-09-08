@@ -1,0 +1,16 @@
+vt.init
+mvga.vth
+(main)
+branch
+
+vectfn add.a,b
+    (sum.a+b)
+    rtn sum
+
+vectfn main
+    cmt Function invocation with parameters
+    (result.add 25, 75)
+    echo "Function Result (25 + 75):"
+    echo result
+
+main()

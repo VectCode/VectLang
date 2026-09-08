@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentation — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.1 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <h1 style="margin-top:36px">Documentation</h1>
+  <p style="color:var(--mut)">The complete Vect (.vt) language reference for v0.2.1.</p>
+
+  <div class="toc">
+    <a href="#header">1 · File header</a>
+    <a href="#vars">2 · Variables</a>
+    <a href="#math">3 · Math</a>
+    <a href="#control">4 · Branching &amp; loops</a>
+    <a href="#func">5 · Functions</a>
+    <a href="#arrays">6 · Arrays</a>
+    <a href="#io">7 · Console I/O</a>
+    <a href="#files">8 · File I/O</a>
+    <a href="#headers">9 · Header libraries</a>
+    <a href="#comments">10 · Comments</a>
+    <a href="#hw">11 · Hardware stubs</a>
+    <a href="#errors">12 · Errors</a>
+    <a href="#cli">13 · vectc CLI</a>
+  </div>
+
+  <h2 class="sec" id="header">1 · File header</h2>
+  <p>Every <code>.vt</code> file starts with the init block, then function definitions, then a call:</p>
+<pre><code>vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    ...
+main()</code></pre>
+  <p><code>vt.init</code> prepares the runtime, <code>(main)</code> selects the entry point, <code>branch</code> transfers control. Blocks are 4-space indented, one statement per line, no semicolons.</p>
+
+  <h2 class="sec" id="vars">2 · Variables</h2>
+  <p>Compact assignment: trailing digits are the value.</p>
+<pre><code>x10          cmt x = 10
+count100     cmt count = 100
+timer0       cmt timer = 0
+msg"hi"      cmt string assignment</code></pre>
+
+  <h2 class="sec" id="math">3 · Math — target notation</h2>
+  <p>All arithmetic uses <code>(target.expression)</code>:</p>
+<pre><code>(c.a+b)                 cmt c = a + b
+(total.c*2)             cmt total = c * 2
+(root.sqrt.val)         cmt square root
+(shlRes.bit shl a, 2)   cmt 10 &lt;&lt; 2 = 40
+(shrRes.bit shr b, 1)   cmt 20 &gt;&gt; 1 = 10
+(inv.bit not v)         cmt bitwise NOT
+(r.a AND b) (r.a OR b) (r.a XOR b)</code></pre>
+  <p>Operators: <code>+ - * / %</code>, comparisons <code>== != &lt; &lt;= &gt; &gt;=</code>. Division by zero halts the program immediately.</p>
+
+  <h2 class="sec" id="control">4 · Branching &amp; loops</h2>
+<pre><code>if x &gt; 10
+    echo "big"
+els
+    echo "small"
+lo10                     cmt run 10 times
+    (counter.counter+1)
+lo10w running == 1       cmt up to 10x while true
+    (val.val+1)</code></pre>
+
+  <h2 class="sec" id="func">5 · Functions</h2>
+<pre><code>vectfn add.a, b
+    (sum.a+b)
+    rtn sum
+vectfn main
+    (result.add 25, 75)
+    echo result
+main()</code></pre>
+
+  <h2 class="sec" id="arrays">6 · Arrays</h2>
+<pre><code>scores(3)                 cmt allocate 3 slots, zeroed
+set scores, 0, 10        cmt write index 0
+(firstScore.get scores, 0)
+echo firstScore</code></pre>
+  <p>Out-of-bounds access halts the program with a line number.</p>
+
+  <h2 class="sec" id="io">7 · Console I/O</h2>
+  <table>
+    <tr><th>Form</th><th>Does</th></tr>
+    <tr><td><code>echo "hi"</code> / <code>echo x</code></td><td>Print string or variable + newline (stdout)</td></tr>
+    <tr><td><code>echow timer, 100</code></td><td>Print value refreshed in-place (overlay/counter use)</td></tr>
+    <tr><td><code>in(key)</code></td><td>Read one line of stdin into variable (number → int)</td></tr>
+  </table>
+
+  <h2 class="sec" id="files">8 · File I/O</h2>
+<pre><code>fopen fh, "notes.txt", "w"   cmt modes: "r" read, "w" write
+fwrite fh, "hello vect"
+fclose fh
+fopen fr, "notes.txt", "r"
+(s.fread fr, 64)              cmt up to 64 bytes, "" at EOF
+fclose fr</code></pre>
+  <p>Paths resolve relative to where you run <code>vectc</code>.</p>
+
+  <h2 class="sec" id="headers">9 · Header libraries (.vth)</h2>
+  <p>List a <code>.vth</code> file in the header to load reusable <code>vectfn</code> definitions. Headers may only contain comments, header lines and <code>vectfn</code> blocks. Includes resolve relative to the file that names them, nest, and never load twice.</p>
+
+  <h2 class="sec" id="comments">10 · Comments</h2>
+  <p><code>cmt</code> starts a comment to end of line, full-line or trailing:</p>
+<pre><code>cmt a full line note
+x10 cmt trailing note</code></pre>
+
+  <h2 class="sec" id="hw">11 · Hardware stubs</h2>
+  <p>Hosted <code>vectc</code> maps hardware primitives to safe stubs: <code>vga0x320200</code> prints an init banner, <code>pout(port, val)</code> is accepted and ignored. A real framebuffer backend is planned.</p>
+
+  <h2 class="sec" id="errors">12 · Errors</h2>
+  <p>Vect uses immediate failure: any runtime fault (division by zero, bad index, bad handle, unknown variable) prints to stderr and exits non-zero:</p>
+<pre><code>[Vect Runtime Error]: Division by zero at line 14
+[Vect Execution Terminated]</code></pre>
+
+  <h2 class="sec" id="cli">13 · vectc CLI</h2>
+<pre><code>vectc program.vt            cmt compile + run
+vectc --dump program.vt     cmt print bytecode, don't run</code></pre>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.1</span><span style="flex:1"></span><a href="examples.html">Examples</a><a href="download.html">Download</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>
