@@ -9,7 +9,7 @@
         "type": "git",
         "url": "https://github.com/VectCode/VectLang"
     },
-    "homepage": "https://vect.onrender.com",
+    "homepage": "https://vect-7v7s.onrender.com",
     "engines": {
         "vscode": "^1.80.0"
     },

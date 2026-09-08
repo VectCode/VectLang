@@ -57,7 +57,7 @@ Try the examples in the repo root: `hello.vt`, `vars_math.vt`,
 | `site/` | Static website (Render-ready, publish dir `site/`) |
 
 Full language reference: open `site/docs.html` or read it on the
-[website](https://vect.onrender.com/docs.html).
+[website](https://vect-7v7s.onrender.com/docs.html).
 
 ## Roadmap
 
