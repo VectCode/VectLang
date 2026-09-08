@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -13,7 +13,7 @@
   <a class="nl" href="examples.html">Examples</a>
   <a class="nl on" href="docs.html">Docs</a>
   <a class="nl" href="download.html">Download</a>
-  <span class="sp"></span><span class="badge">v0.2.1 · .vt</span>
+  <span class="sp"></span><span class="badge">v0.2.3 · .vt</span>
 </div></header>
 
 <main class="wrap">
@@ -28,6 +28,14 @@ set scores, 1, 25
 (firstScore.get scores, 0)
 echo firstScore          cmt 10</code></pre>
   <p>Out-of-bounds reads and writes halt the program with a line number.</p>
+
+  <h2 class="sec">String ops</h2>
+<pre><code>msg"hello"
+(n.len msg)            cmt 5 (bytes; also works on arrays)
+(c.char msg, 1)        cmt 101, the code of 'e'
+(greet.cat msg, " you") cmt "hello you"
+(ok.cmp a, b)          cmt -1 / 0 / 1</code></pre>
+  <p>Strings compare with <code>==</code> / <code>!=</code> (and ordering) in <code>if</code> conditions, and <code>cat</code> accepts numbers too.</p>
 
   <h2 class="sec">Console I/O</h2>
   <table>
@@ -50,7 +58,7 @@ echo s</code></pre>
   <p style="color:var(--mut)">Next: <a href="docs-system.html">4 · System →</a></p>
 </main>
 
-<footer><div class="wrap"><span>Vect language · v0.2.1</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a></div></footer>
+<footer><div class="wrap"><span>Vect language · v0.2.3</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a></div></footer>
 <script src="site.js"></script>
 </body>
 </html>

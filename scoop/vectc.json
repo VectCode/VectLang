@@ -1,12 +1,12 @@
 {
-    "version": "0.2.1",
+    "version": "0.2.3",
     "description": "Vect ultra-compact low-level language toolchain",
     "homepage": "https://vect.onrender.com",
     "license": "GPL-3.0-only",
     "architecture": {
         "64bit": {
-            "url": "https://vect.onrender.com/dl/vectc-v0.2.1-windows-x64.zip",
-            "hash": "2dff75a620cce8b5c2a1d9ef482d0f3d3d902061583e0196e2deb2f88c722b3d"
+            "url": "https://vect.onrender.com/dl/vectc-v0.2.3-windows-x64.zip",
+            "hash": "514d06c7f296e5f093a02d93d5a6c0d2cee9c0b4fe4c4b11144ac12f31e8bd96"
         }
     },
     "bin": ["vectc.exe", ["vectc.exe", "vect"]],

@@ -1,0 +1,16 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    y3.14
+    (r.y*2)
+    echo r
+    a10
+    (m.a+y)
+    echo m
+    if r > 6.0
+        echo "big"
+    els
+        echo "small"
+main()

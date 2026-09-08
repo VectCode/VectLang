@@ -1,0 +1,18 @@
+{
+    "comments": {
+        "lineComment": "cmt"
+    },
+    "brackets": [["(", ")"]],
+    "autoClosingPairs": [
+        { "open": "(", "close": ")" },
+        { "open": "\"", "close": "\"", "notIn": ["string"] }
+    ],
+    "surroundingPairs": [
+        ["(", ")"],
+        ["\"", "\""]
+    ],
+    "indentationRules": {
+        "increaseIndentPattern": "^\\s*(vectfn\\b.*|if\\b.*|els\\s*$|lo\\d.*)$",
+        "decreaseIndentPattern": "^\\s*(els\\s*)$"
+    }
+}

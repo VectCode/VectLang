@@ -1,0 +1,81 @@
+{
+    "name": "Vect",
+    "scopeName": "source.vect",
+    "fileTypes": ["vt", "vth"],
+    "patterns": [
+        { "include": "#strings" },
+        { "include": "#comments" },
+        { "include": "#function-def" },
+        { "include": "#header" },
+        { "include": "#loops" },
+        { "include": "#keywords" },
+        { "include": "#target-expr" },
+        { "include": "#compact-assign" },
+        { "include": "#numbers" },
+        { "include": "#operators" }
+    ],
+    "repository": {
+        "strings": {
+            "name": "string.quoted.double.vect",
+            "begin": "\"",
+            "end": "\""
+        },
+        "comments": {
+            "name": "comment.line.vect",
+            "match": "\\bcmt\\b.*$"
+        },
+        "function-def": {
+            "match": "^\\s*(vectfn)\\s+([A-Za-z_][A-Za-z0-9_]*)(?:\\.([^\\s]+))?",
+            "captures": {
+                "1": { "name": "keyword.declaration.vect" },
+                "2": { "name": "entity.name.function.vect" },
+                "3": { "name": "variable.parameter.vect" }
+            }
+        },
+        "header": {
+            "match": "\\b(vt\\.init|branch)\\b|(\\(main\\))|([A-Za-z0-9_.-]+\\.vth\\b)",
+            "captures": {
+                "1": { "name": "keyword.other.vect" },
+                "2": { "name": "entity.name.entrypoint.vect" },
+                "3": { "name": "entity.name.import.vect" }
+            }
+        },
+        "loops": {
+            "match": "\\b(lo)(\\d+)(w)?\\b",
+            "captures": {
+                "1": { "name": "keyword.control.loop.vect" },
+                "2": { "name": "constant.numeric.loop.vect" },
+                "3": { "name": "keyword.control.conditional.vect" }
+            }
+        },
+        "keywords": {
+            "match": "\\b(rtn|if|els|echo|echow|in|set|get|fopen|fread|fwrite|fclose|pout|pin|sqrt|bit|shl|shr|not|AND|OR|XOR|vga\\w*)\\b",
+            "captures": {
+                "1": { "name": "keyword.control.vect" }
+            }
+        },
+        "target-expr": {
+            "match": "\\(([A-Za-z_][A-Za-z0-9_]*)(\\.)",
+            "captures": {
+                "1": { "name": "variable.other.target.vect" },
+                "2": { "name": "punctuation.separator.dot.vect" }
+            }
+        },
+        "compact-assign": {
+            "match": "^\\s*([A-Za-z_][A-Za-z0-9_]*?)(\\d+)\\s*(cmt.*)?$",
+            "captures": {
+                "1": { "name": "variable.other.assign.vect" },
+                "2": { "name": "constant.numeric.assign.vect" },
+                "3": { "name": "comment.line.vect" }
+            }
+        },
+        "numbers": {
+            "name": "constant.numeric.vect",
+            "match": "\\b\\d+\\b"
+        },
+        "operators": {
+            "name": "keyword.operator.vect",
+            "match": "==|!=|<=|>=|[+\\-*/%<>]"
+        }
+    }
+}

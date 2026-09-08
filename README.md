@@ -18,13 +18,15 @@ vectfn main
 main()
 ```
 
-## Features (v0.2.1)
+## Features (v0.2.3)
 
 - **Ultra-compact syntax** — `x10` means `x = 10`, `(c.a+b)` means `c = a + b`
+- **Floats** — `y3.14` with int↔float promotion
 - **Bytecode compiler + stack VM** (`vectc`) with `--dump` disassembler
 - **Control flow** — `if` / `els`, `lo10` fixed and `lo10w` conditional loops
 - **Functions** — `vectfn name.a, b` with `rtn`
 - **Arrays** — `arr(5)`, `set arr, i, v`, `(x.get arr, i)`
+- **Strings** — `(n.len s)`, `(c.char s, i)`, `(ok.cmp a, b)`, `(out.cat a, b)`
 - **I/O** — `echo`, `echow`, `in()`, files via `fopen` / `fread` / `fwrite` / `fclose`
 - **Header libraries** — reusable `.vth` files (e.g. `mvga.vth`)
 - **Immediate-failure errors** with file + line numbers, non-zero exit
@@ -35,14 +37,15 @@ Requires [Zig](https://ziglang.org) 0.16.
 
 ```powershell
 cd vectc
-zig build-exe src/main.zig -O Debug   # produces vectc.exe (use -O ReleaseFast for releases)
+zig build-exe src/main.zig -O ReleaseFast   # produces vectc.exe
 .\vectc.exe ..\hello.vt
 .\vectc.exe --dump ..\func.vt         # show bytecode instead of running
+.\vectc.exe --version                 # vectc 0.2.3
 ```
 
 Try the examples in the repo root: `hello.vt`, `vars_math.vt`,
 `control.vt`, `func.vt`, `array.vt`, `io.vt`, `fileio.vt`, `ifels.vt`,
-`inc_test.vt`.
+`inc_test.vt`, `float.vt`, `str.vt`.
 
 ## Project layout
 

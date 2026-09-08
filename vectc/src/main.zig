@@ -8,9 +8,13 @@ const std = @import("std");
 fn fail(lineno: usize, comptime fmt: []const u8, args: anytype) noreturn {
     std.debug.print("[Vect Runtime Error]: ", .{});
     std.debug.print(fmt, args);
-    std.debug.print(" at line {d}\n[Vect Execution Terminated]\n", .{lineno});
+    std.debug.print(" at line {d}", .{lineno});
+    if (fail_file.len > 0) std.debug.print(" ({s})", .{fail_file});
+    std.debug.print("\n[Vect Execution Terminated]\n", .{});
     std.process.exit(1);
 }
+
+var fail_file: []const u8 = "";
 
 // ---------------- frontend ----------------
 
@@ -78,6 +82,15 @@ fn stripComment(s: []const u8) []const u8 {
     return s;
 }
 
+fn isFloatLit(s: []const u8) bool {
+    const t = std.mem.trim(u8, s, " \t");
+    if (t.len == 0) return false;
+    if (std.mem.indexOfScalar(u8, t, '.') == null) return false;
+    const c0 = t[0];
+    if (!(c0 == '-' or (c0 >= '0' and c0 <= '9'))) return false;
+    if (std.fmt.parseFloat(f64, t)) |_| return true else |_| return false;
+}
+
 fn isIntLit(s: []const u8) bool {
     const t = std.mem.trim(u8, s, " \t");
     if (t.len == 0) return false;
@@ -96,6 +109,7 @@ fn isIntLit(s: []const u8) bool {
 
 const Op = enum(u8) {
     push_int, // a = value
+    push_float, // a = f64 bits
     push_str, // a = const pool idx
     load, // a = slot
     store, // a = slot
@@ -118,6 +132,10 @@ const Op = enum(u8) {
     shr,
     bitnot,
     sqrt,
+    len, // pops value, pushes int length (strings: bytes, arrays: items)
+    charat, // pops idx, then string ; pushes char code int
+    cmpstr, // pops b, then a (strings) ; pushes -1/0/1
+    cat, // pops b, then a ; pushes concatenated string
     newarr, // a = slot ; pops size
     arrget, // a = dst slot, b = arr slot ; pops idx
     arrset, // a = arr slot ; pops idx, then val
@@ -149,6 +167,7 @@ const Chunk = struct {
     code: std.ArrayList(Instr),
     arity: u8,
     nslots: u32,
+    file: []const u8 = "",
 };
 
 const FuncInfo = struct {
@@ -156,6 +175,7 @@ const FuncInfo = struct {
     params: [][]const u8,
     body_start: usize,
     body_end: usize, // inclusive; start > end == empty
+    file: []const u8 = "",
 };
 
 const Program = struct {
@@ -253,6 +273,11 @@ const Compiler = struct {
             _ = try self.emit(.push_int, v, 0, lineno);
             return;
         }
+        if (isFloatLit(t)) {
+            const fv = std.fmt.parseFloat(f64, t) catch fail(lineno, "Bad number '{s}'", .{t});
+            _ = try self.emit(.push_float, @bitCast(fv), 0, lineno);
+            return;
+        }
         const sl = try self.needSlot(t, lineno);
         _ = try self.emit(.load, sl, 0, lineno);
     }
@@ -327,6 +352,39 @@ const Compiler = struct {
             const arr = try self.needSlot(parts[0], lineno);
             try self.compileOperand(parts[1], lineno);
             _ = try self.emit(.arrget, dst, arr, lineno);
+            return;
+        }
+        if (std.mem.startsWith(u8, r, "len ") or std.mem.startsWith(u8, r, "len\t")) {
+            try self.compileOperand(std.mem.trim(u8, r[3..], " \t"), lineno);
+            _ = try self.emit(.len, 0, 0, lineno);
+            _ = try self.emit(.store, dst, 0, lineno);
+            return;
+        }
+        if (std.mem.startsWith(u8, r, "char ") or std.mem.startsWith(u8, r, "char\t")) {
+            const parts = try self.splitParts(std.mem.trim(u8, r[4..], " \t"), ',');
+            if (parts.len != 2) fail(lineno, "char needs 'str, idx'", .{});
+            try self.compileOperand(parts[0], lineno);
+            try self.compileOperand(parts[1], lineno);
+            _ = try self.emit(.charat, 0, 0, lineno);
+            _ = try self.emit(.store, dst, 0, lineno);
+            return;
+        }
+        if (std.mem.startsWith(u8, r, "cmp ") or std.mem.startsWith(u8, r, "cmp\t")) {
+            const parts = try self.splitParts(std.mem.trim(u8, r[3..], " \t"), ',');
+            if (parts.len != 2) fail(lineno, "cmp needs 'a, b'", .{});
+            try self.compileOperand(parts[0], lineno);
+            try self.compileOperand(parts[1], lineno);
+            _ = try self.emit(.cmpstr, 0, 0, lineno);
+            _ = try self.emit(.store, dst, 0, lineno);
+            return;
+        }
+        if (std.mem.startsWith(u8, r, "cat ") or std.mem.startsWith(u8, r, "cat\t")) {
+            const parts = try self.splitParts(std.mem.trim(u8, r[3..], " \t"), ',');
+            if (parts.len != 2) fail(lineno, "cat needs 'a, b'", .{});
+            try self.compileOperand(parts[0], lineno);
+            try self.compileOperand(parts[1], lineno);
+            _ = try self.emit(.cat, 0, 0, lineno);
+            _ = try self.emit(.store, dst, 0, lineno);
             return;
         }
         // AND / OR / XOR word operators: (c.a AND b)
@@ -666,6 +724,21 @@ const Compiler = struct {
             }
         }
 
+        // compact float: NAMEfloat single token like y3.14
+        if (std.mem.indexOfAny(u8, t, " \t\"'(),") == null and std.mem.indexOfScalar(u8, t, '.') != null) {
+            var qf: usize = 1;
+            while (qf < t.len) : (qf += 1) {
+                if (isIdent(t[0..qf]) and isFloatLit(t[qf..])) {
+                    const fv = std.fmt.parseFloat(f64, t[qf..]) catch fail(ln.lineno, "Bad number '{s}'", .{t});
+                    const sl = try self.slotOf(t[0..qf], ln.lineno);
+                    _ = try self.emit(.push_float, @bitCast(fv), 0, ln.lineno);
+                    _ = try self.emit(.store, sl, 0, ln.lineno);
+                    if (end != idx) fail(ln.lineno, "Unexpected indented block", .{});
+                    return idx + 1;
+                }
+            }
+        }
+
         if (std.mem.indexOfAny(u8, t, " \t\"'(),") == null) {
             var q = t.len;
             while (q > 0 and t[q - 1] >= '0' and t[q - 1] <= '9') : (q -= 1) {}
@@ -714,12 +787,13 @@ const Compiler = struct {
             var j = i + 1;
             while (j < lines.len and lines[j].level > 0) : (j += 1) {}
             const cidx = prog.chunks.items.len;
-            try prog.chunks.append(alloc, Chunk{ .name = fname, .code = .empty, .arity = @intCast(params.len), .nslots = 0 });
+            try prog.chunks.append(alloc, Chunk{ .name = fname, .code = .empty, .arity = @intCast(params.len), .nslots = 0, .file = lines[i].file });
             try prog.func_index.put(fname, cidx);
-            try infos.append(alloc, FuncInfo{ .chunk_idx = cidx, .params = params, .body_start = i + 1, .body_end = j - 1 });
+            try infos.append(alloc, FuncInfo{ .chunk_idx = cidx, .params = params, .body_start = i + 1, .body_end = j - 1, .file = lines[i].file });
         }
         // pass 2: compile each body
         for (infos.items) |fi| {
+            fail_file = fi.file;
             var cc = Compiler{ .alloc = alloc, .lines = lines, .prog = prog, .chunk_idx = fi.chunk_idx, .vars = std.StringHashMap(u32).init(alloc), .next_slot = 0 };
             for (fi.params, 0..) |pp, k| {
                 try cc.vars.put(pp, @intCast(k));
@@ -737,6 +811,7 @@ const Compiler = struct {
         }
         // pass 3: implicit __top chunk for top-level statements
         {
+            fail_file = "";
             const cidx = prog.chunks.items.len;
             try prog.chunks.append(alloc, Chunk{ .name = "__top", .code = .empty, .arity = 0, .nslots = 0 });
             try prog.func_index.put("__top", cidx);
@@ -752,12 +827,31 @@ const Compiler = struct {
 
 // ---------------- VM ----------------
 
-const VTag = enum { Int, Str, Arr };
+const VTag = enum { Int, Float, Str, Arr };
 const VVal = struct {
     tag: VTag = .Int,
     int: i64 = 0,
+    float: f64 = 0,
     str: []const u8 = "",
     arr: usize = 0,
+};
+
+const Num = struct {
+    is_f: bool = false,
+    i: i64 = 0,
+    f: f64 = 0,
+
+    fn of(v: VVal) Num {
+        return switch (v.tag) {
+            .Int => Num{ .is_f = false, .i = v.int },
+            .Float => Num{ .is_f = true, .f = v.float },
+            else => unreachable,
+        };
+    }
+
+    fn toF(self: Num) f64 {
+        return if (self.is_f) self.f else @floatFromInt(self.i);
+    }
 };
 
 const Frame = struct {
@@ -801,6 +895,11 @@ const Vm = struct {
         const v = self.pop();
         switch (v.tag) {
             .Int => return v.int,
+            .Float => {
+                if (std.math.isNan(v.float)) fail(self.curLine(), "Not a number", .{});
+                if (v.float >= 9.223372036854776e18 or v.float <= -9.223372036854776e18) fail(self.curLine(), "Number too large", .{});
+                return @intFromFloat(v.float);
+            },
             .Str => {
                 const st = std.mem.trim(u8, v.str, " \t\r\n");
                 if (std.fmt.parseInt(i64, st, 10)) |n| return n else |_| fail(self.curLine(), "Not a number", .{});
@@ -809,12 +908,80 @@ const Vm = struct {
         }
     }
 
+    fn popNum(self: *Vm) Num {
+        const v = self.pop();
+        switch (v.tag) {
+            .Int => return Num{ .is_f = false, .i = v.int },
+            .Float => return Num{ .is_f = true, .f = v.float },
+            .Str => {
+                const st = std.mem.trim(u8, v.str, " \t\r\n");
+                if (std.fmt.parseInt(i64, st, 10)) |n| return Num{ .is_f = false, .i = n } else |_| {}
+                if (std.fmt.parseFloat(f64, st)) |x| return Num{ .is_f = true, .f = x } else |_| {}
+                fail(self.curLine(), "Not a number", .{});
+            },
+            .Arr => fail(self.curLine(), "Array is not a number", .{}),
+        }
+    }
+
+    fn binArith(self: *Vm, ln: u32, which: u8) error{OutOfMemory}!void {
+        const bn = self.popNum();
+        const an = self.popNum();
+        if (an.is_f or bn.is_f) {
+            const x = an.toF();
+            const y = bn.toF();
+            var r: f64 = 0;
+            switch (which) {
+                'p' => r = x + y,
+                'm' => r = x - y,
+                't' => r = x * y,
+                'd' => {
+                    if (y == 0) fail(ln, "Division by zero", .{});
+                    r = x / y;
+                },
+                else => {
+                    if (y == 0) fail(ln, "Modulo by zero", .{});
+                    r = @mod(x, y);
+                },
+            }
+            self.push(VVal{ .tag = .Float, .float = r });
+        } else {
+            var r: i64 = 0;
+            switch (which) {
+                'p' => r = an.i + bn.i,
+                'm' => r = an.i - bn.i,
+                't' => r = an.i * bn.i,
+                'd' => {
+                    if (bn.i == 0) fail(ln, "Division by zero", .{});
+                    r = @divTrunc(an.i, bn.i);
+                },
+                else => {
+                    if (bn.i == 0) fail(ln, "Modulo by zero", .{});
+                    r = @mod(an.i, bn.i);
+                },
+            }
+            self.push(VVal{ .tag = .Int, .int = r });
+        }
+    }
+
     fn truthy(v: VVal) bool {
         return switch (v.tag) {
             .Int => v.int != 0,
+            .Float => v.float != 0,
             .Str => v.str.len != 0,
             .Arr => true,
         };
+    }
+
+    fn toStr(self: *Vm, v: VVal, ln: u32) error{OutOfMemory}![]const u8 {
+        switch (v.tag) {
+            .Str => return v.str,
+            .Int => {
+                var nb: [32]u8 = undefined;
+                return try self.alloc.dupe(u8, intStr(&nb, v.int));
+            },
+            .Float => return try std.fmt.allocPrint(self.alloc, "{d}", .{v.float}),
+            .Arr => fail(ln, "Cannot stringify array", .{}),
+        }
     }
 
     fn out(self: *Vm, bytes: []const u8) void {
@@ -830,6 +997,11 @@ const Vm = struct {
     fn printVal(self: *Vm, v: VVal) void {
         switch (v.tag) {
             .Int => self.outInt(v.int),
+            .Float => {
+                const s = std.fmt.allocPrint(self.alloc, "{d}", .{v.float}) catch return;
+                self.out(s);
+                self.out("\n");
+            },
             .Str => {
                 self.out(v.str);
                 self.out("\n");
@@ -862,6 +1034,7 @@ const Vm = struct {
             const f = &self.frames[self.depth - 1];
             if (f.ip >= f.chunk.code.items.len) fail(self.curLine(), "Fell off chunk '{s}'", .{f.chunk.name});
             const ins = f.chunk.code.items[f.ip];
+            fail_file = f.chunk.file;
             f.ip += 1;
             const ln = ins.line;
             switch (ins.op) {
@@ -878,44 +1051,53 @@ const Vm = struct {
                     f.slots[s] = self.pop();
                 },
                 .pop => _ = self.pop(),
-                .add => {
-                    const b = self.popInt();
-                    const a = self.popInt();
-                    self.push(VVal{ .tag = .Int, .int = a + b });
-                },
-                .sub => {
-                    const b = self.popInt();
-                    const a = self.popInt();
-                    self.push(VVal{ .tag = .Int, .int = a - b });
-                },
-                .mul => {
-                    const b = self.popInt();
-                    const a = self.popInt();
-                    self.push(VVal{ .tag = .Int, .int = a * b });
-                },
-                .div => {
-                    const b = self.popInt();
-                    const a = self.popInt();
-                    if (b == 0) fail(ln, "Division by zero", .{});
-                    self.push(VVal{ .tag = .Int, .int = @divTrunc(a, b) });
-                },
-                .mod => {
-                    const b = self.popInt();
-                    const a = self.popInt();
-                    if (b == 0) fail(ln, "Modulo by zero", .{});
-                    self.push(VVal{ .tag = .Int, .int = @mod(a, b) });
-                },
+                .push_float => self.push(VVal{ .tag = .Float, .float = @bitCast(@as(u64, @bitCast(ins.a))) }),
+                .add => try self.binArith(ln, 'p'),
+                .sub => try self.binArith(ln, 'm'),
+                .mul => try self.binArith(ln, 't'),
+                .div => try self.binArith(ln, 'd'),
+                .mod => try self.binArith(ln, 'r'),
                 .eq, .ne, .lt, .le, .gt, .ge => {
-                    const b = self.popInt();
-                    const a = self.popInt();
-                    const r: i64 = switch (ins.op) {
-                        .eq => if (a == b) 1 else 0,
-                        .ne => if (a != b) 1 else 0,
-                        .lt => if (a < b) 1 else 0,
-                        .le => if (a <= b) 1 else 0,
-                        .gt => if (a > b) 1 else 0,
-                        else => if (a >= b) 1 else 0,
-                    };
+                    const bv = self.pop();
+                    const av = self.pop();
+                    var r: i64 = 0;
+                    if (av.tag == .Str and bv.tag == .Str) {
+                        const o = std.mem.order(u8, av.str, bv.str);
+                        r = switch (ins.op) {
+                            .eq => if (o == .eq) 1 else 0,
+                            .ne => if (o != .eq) 1 else 0,
+                            .lt => if (o == .lt) 1 else 0,
+                            .le => if (o != .gt) 1 else 0,
+                            .gt => if (o == .gt) 1 else 0,
+                            else => if (o != .lt) 1 else 0,
+                        };
+                    } else if (av.tag == .Str or bv.tag == .Str or av.tag == .Arr or bv.tag == .Arr) {
+                        fail(ln, "Cannot compare these values", .{});
+                    } else {
+                        const an = Num.of(av);
+                        const bn = Num.of(bv);
+                        if (an.is_f or bn.is_f) {
+                            const x = an.toF();
+                            const y = bn.toF();
+                            r = switch (ins.op) {
+                                .eq => if (x == y) 1 else 0,
+                                .ne => if (x != y) 1 else 0,
+                                .lt => if (x < y) 1 else 0,
+                                .le => if (x <= y) 1 else 0,
+                                .gt => if (x > y) 1 else 0,
+                                else => if (x >= y) 1 else 0,
+                            };
+                        } else {
+                            r = switch (ins.op) {
+                                .eq => if (an.i == bn.i) 1 else 0,
+                                .ne => if (an.i != bn.i) 1 else 0,
+                                .lt => if (an.i < bn.i) 1 else 0,
+                                .le => if (an.i <= bn.i) 1 else 0,
+                                .gt => if (an.i > bn.i) 1 else 0,
+                                else => if (an.i >= bn.i) 1 else 0,
+                            };
+                        }
+                    }
                     self.push(VVal{ .tag = .Int, .int = r });
                 },
                 .and_ => {
@@ -948,9 +1130,53 @@ const Vm = struct {
                     self.push(VVal{ .tag = .Int, .int = ~a });
                 },
                 .sqrt => {
-                    const a = self.popInt();
-                    const r: i64 = if (a <= 0) 0 else @intFromFloat(@sqrt(@as(f64, @floatFromInt(a))));
+                    const an = self.popNum();
+                    const x = an.toF();
+                    if (an.is_f) {
+                        if (x < 0) fail(ln, "Square root of negative", .{});
+                        self.push(VVal{ .tag = .Float, .float = @sqrt(x) });
+                    } else {
+                        const a = an.i;
+                        const r: i64 = if (a <= 0) 0 else @intFromFloat(@sqrt(@as(f64, @floatFromInt(a))));
+                        self.push(VVal{ .tag = .Int, .int = r });
+                    }
+                },
+                .len => {
+                    const v = self.pop();
+                    switch (v.tag) {
+                        .Str => self.push(VVal{ .tag = .Int, .int = @intCast(v.str.len) }),
+                        .Arr => self.push(VVal{ .tag = .Int, .int = @intCast(self.arrays.items[v.arr].len) }),
+                        else => fail(ln, "len needs a string or array", .{}),
+                    }
+                },
+                .charat => {
+                    const idx = self.popInt();
+                    const v = self.pop();
+                    if (v.tag != .Str) fail(ln, "char needs a string", .{});
+                    if (idx < 0 or idx >= v.str.len) fail(ln, "Index {d} out of bounds (len {d})", .{ idx, v.str.len });
+                    self.push(VVal{ .tag = .Int, .int = v.str[@intCast(idx)] });
+                },
+                .cmpstr => {
+                    const b = self.pop();
+                    const a = self.pop();
+                    if (a.tag != .Str or b.tag != .Str) fail(ln, "cmp needs two strings", .{});
+                    const o = std.mem.order(u8, a.str, b.str);
+                    const r: i64 = switch (o) {
+                        .lt => -1,
+                        .eq => 0,
+                        .gt => 1,
+                    };
                     self.push(VVal{ .tag = .Int, .int = r });
+                },
+                .cat => {
+                    const b = self.pop();
+                    const a = self.pop();
+                    const sa = try self.toStr(a, ln);
+                    const sb = try self.toStr(b, ln);
+                    const joined = try self.alloc.alloc(u8, sa.len + sb.len);
+                    @memcpy(joined[0..sa.len], sa);
+                    @memcpy(joined[sa.len..], sb);
+                    self.push(VVal{ .tag = .Str, .str = joined });
                 },
                 .newarr => {
                     const s: usize = @intCast(ins.a);
@@ -1068,6 +1294,10 @@ const Vm = struct {
                             var nb: [32]u8 = undefined;
                             fh.writeStreamingAll(self.io, intStr(&nb, v.int)) catch fail(ln, "File write failed", .{});
                         },
+                        .Float => {
+                            const s = std.fmt.allocPrint(self.alloc, "{d}", .{v.float}) catch fail(ln, "File write failed", .{});
+                            fh.writeStreamingAll(self.io, s) catch fail(ln, "File write failed", .{});
+                        },
                         .Arr => fail(ln, "Cannot write array to file", .{}),
                     }
                 },
@@ -1174,7 +1404,10 @@ pub fn main(init: std.process.Init) !void {
     var dump = false;
     var path: []const u8 = "";
     for (args[1..]) |a| {
-        if (std.mem.eql(u8, a, "--dump")) dump = true else path = a;
+        if (std.mem.eql(u8, a, "--dump")) dump = true else if (std.mem.eql(u8, a, "--version")) {
+            std.Io.File.stdout().writeStreamingAll(init.io, "vectc 0.2.3\n") catch {};
+            return;
+        } else path = a;
     }
     if (path.len == 0) {
         std.debug.print("Usage: vectc [--dump] <file.vt>\n", .{});

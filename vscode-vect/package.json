@@ -1,0 +1,41 @@
+{
+    "name": "vect",
+    "displayName": "Vect",
+    "description": "Language support for Vect (.vt) — ultra-compact low-level language",
+    "version": "0.2.3",
+    "publisher": "merixcipher",
+    "license": "GPL-3.0-only",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/MerixCipher/VectLang"
+    },
+    "homepage": "https://vect.onrender.com",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "categories": ["Programming Languages"],
+    "keywords": ["vect", "vt", "low-level"],
+    "contributes": {
+        "languages": [
+            {
+                "id": "vect",
+                "aliases": ["Vect", "vect"],
+                "extensions": [".vt", ".vth"],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "vect",
+                "scopeName": "source.vect",
+                "path": "./syntaxes/vect.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "vect",
+                "path": "./snippets/vect.json"
+            }
+        ]
+    }
+}

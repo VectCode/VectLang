@@ -1,0 +1,19 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    msg"hello"
+    (n.len msg)
+    echo n
+    (c.char msg, 1)
+    echo c
+    (greet.cat msg, " you")
+    echo greet
+    (ok.cmp msg, msg)
+    echo ok
+    if msg == msg
+        echo "same"
+    els
+        echo "diff"
+main()

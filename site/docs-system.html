@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -13,7 +13,7 @@
   <a class="nl" href="examples.html">Examples</a>
   <a class="nl on" href="docs.html">Docs</a>
   <a class="nl" href="download.html">Download</a>
-  <span class="sp"></span><span class="badge">v0.2.1 · .vt</span>
+  <span class="sp"></span><span class="badge">v0.2.3 · .vt</span>
 </div></header>
 
 <main class="wrap">
@@ -46,17 +46,18 @@ main()</code></pre>
   </table>
 
   <h2 class="sec">Errors</h2>
-  <p>Vect uses immediate failure: any fault (division by zero, bad index, bad handle, unknown variable or function) prints to <b>stderr</b> and exits non-zero:</p>
+  <p>Vect uses immediate failure: any fault (division by zero, bad index, bad handle, unknown variable or function) prints to <b>stderr</b> and exits non-zero. Errors inside header libraries name the file:</p>
 <pre><code>[Vect Runtime Error]: Division by zero at line 14
 [Vect Execution Terminated]</code></pre>
 
   <h2 class="sec">vectc CLI</h2>
 <pre><code>vectc program.vt            cmt compile to bytecode + run on the VM
-vectc --dump program.vt     cmt print disassembled chunks, don't run</code></pre>
+vectc --dump program.vt     cmt print disassembled chunks, don't run
+vectc --version             cmt print version, e.g. vectc 0.2.3</code></pre>
   <p>Exit code <code>0</code> on success, <code>1</code> on runtime error, <code>2</code> on usage error.</p>
 </main>
 
-<footer><div class="wrap"><span>Vect language · v0.2.1</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a></div></footer>
+<footer><div class="wrap"><span>Vect language · v0.2.3</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a></div></footer>
 <script src="site.js"></script>
 </body>
 </html>

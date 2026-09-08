@@ -1,0 +1,47 @@
+{
+    "Vect file header": {
+        "prefix": "vheader",
+        "body": ["vt.init", "${1:mvga.vth}", "(main)", "branch", "vectfn main", "\t$0", "main()"],
+        "description": "Vect file header with main"
+    },
+    "Vect function": {
+        "prefix": "vectfn",
+        "body": ["vectfn ${1:name}.${2:a, b}", "\t(${3:sum}.${2/(,.*)?//}$0)", "\trtn ${3:sum}"],
+        "description": "Vect function definition with return"
+    },
+    "Vect if els": {
+        "prefix": "vif",
+        "body": ["if ${1:x == 10}", "\techo \"${2:equal}\"", "els", "\techo \"${3:not equal}\""],
+        "description": "Vect if / els branch"
+    },
+    "Vect fixed loop": {
+        "prefix": "vlo",
+        "body": ["lo${1:10}", "\t(${2:counter}.${2:counter}+1)$0"],
+        "description": "Vect fixed lo loop"
+    },
+    "Vect while loop": {
+        "prefix": "vlow",
+        "body": ["lo${1:1000}w ${2:true}", "\t$0"],
+        "description": "Vect conditional lo-w loop"
+    },
+    "Vect target math": {
+        "prefix": "vmath",
+        "body": ["(${1:c}.${2:a+b})$0"],
+        "description": "Vect (target.expression) math"
+    },
+    "Vect array": {
+        "prefix": "varr",
+        "body": ["${1:arr}(${2:5})", "set ${1:arr}, 0, ${3:10}", "(${4:x}.get ${1:arr}, 0)$0"],
+        "description": "Vect array alloc / set / get"
+    },
+    "Vect file block": {
+        "prefix": "vfile",
+        "body": ["fopen ${1:fh}, \"${2:file.txt}\", \"w\"", "fwrite ${1:fh}, \"${3:text}\"", "fclose ${1:fh}$0"],
+        "description": "Vect file open / write / close"
+    },
+    "Vect echo": {
+        "prefix": "vecho",
+        "body": ["echo \"${1:text}\"$0"],
+        "description": "Vect echo"
+    }
+}
