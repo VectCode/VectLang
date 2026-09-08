@@ -1,0 +1,8 @@
+VECT SOFTWARE - USAGE TERMS (v0.2.3)
+
+1. Vect (vectc.exe and accompanying files) is free to download and use.
+2. You may not redistribute, repackage, sell, or rent it.
+3. You may not reverse-engineer, decompile, or extract its source code.
+4. The Vect language, compiler, and all related materials are the
+   exclusive property of MerixCipher. All rights reserved.
+5. Provided "as is", without warranty of any kind.

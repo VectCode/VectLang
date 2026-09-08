@@ -68,4 +68,5 @@ Full language reference: open `site/docs.html` or read it on the
 
 ## License
 
-See [LICENSE](LICENSE).
+Proprietary — all rights reserved. The compiler and language are free to
+download and use under the terms in [TERMS.txt](TERMS.txt).

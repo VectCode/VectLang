@@ -4,7 +4,7 @@
     "description": "Language support for Vect (.vt) — ultra-compact low-level language",
     "version": "0.2.3",
     "publisher": "merixcipher",
-    "license": "GPL-3.0-only",
+    "license": "UNLICENSED",
     "repository": {
         "type": "git",
         "url": "https://github.com/MerixCipher/VectLang"
