@@ -6,7 +6,7 @@
     "architecture": {
         "64bit": {
             "url": "https://vect.onrender.com/dl/vectc-v0.2.1-windows-x64.zip",
-            "hash": "PUT-SHA256-HERE"
+            "hash": "2dff75a620cce8b5c2a1d9ef482d0f3d3d902061583e0196e2deb2f88c722b3d"
         }
     },
     "bin": "vectc.exe",
