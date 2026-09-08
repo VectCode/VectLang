@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2 · Control &amp; functions — Vect docs</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.1 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>2 · Control &amp; functions</h1>
+
+  <h2 class="sec">Branching</h2>
+  <p><code>if</code> runs the indented block when the condition holds. Add a same-level <code>els</code> block for the false path:</p>
+<pre><code>if x &gt; 10
+    echo "big"
+els
+    echo "small"</code></pre>
+  <p>Conditions support <code>== != &lt; &lt;= &gt; &gt;=</code>, plus bare <code>true</code> / <code>false</code> and any non-zero value as true.</p>
+
+  <h2 class="sec">Loops</h2>
+<pre><code>counter0
+lo10                       cmt run the block exactly 10 times
+    echo counter
+    (counter.counter+1)
+running1
+val0
+lo10w running == 1         cmt up to 10 times, stops when false
+    echo val
+    (val.val+1)
+    if val == 3
+        running0</code></pre>
+  <p><code>loN</code> is a fixed loop. <code>loNw cond</code> checks the condition each iteration and stops early when it fails (max <code>N</code> iterations — e.g. <code>lo1000w true</code> is the standard game/app loop).</p>
+
+  <h2 class="sec">Functions</h2>
+  <p>Define with <code>vectfn name.a, b</code>, return with <code>rtn</code>, call with <code>(target.name args)</code>:</p>
+<pre><code>vectfn add.a, b
+    (sum.a+b)
+    rtn sum
+vectfn main
+    (result.add 25, 75)
+    echo result            cmt 100
+main()</code></pre>
+  <p>Plain calls like <code>main()</code> discard the return value. Parameters are bound per call, so recursion works.</p>
+
+  <p style="color:var(--mut)">Next: <a href="docs-data.html">3 · Data &amp; I/O →</a></p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.1</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4 · System — Vect docs</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.1 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>4 · System</h1>
+
+  <h2 class="sec">Header libraries (.vth)</h2>
+  <p>Name a <code>.vth</code> file in the header to load reusable <code>vectfn</code> definitions:</p>
+<pre><code>cmt mylib.vth
+vectfn double.x
+    (d.x*2)
+    rtn d</code></pre>
+<pre><code>vt.init
+mylib.vth
+(main)
+branch
+vectfn main
+    (r.double 21)
+    echo r          cmt 42
+main()</code></pre>
+  <p>Rules: headers may only contain comments, header lines and <code>vectfn</code> blocks. Paths resolve relative to the file that names them, includes nest, and each file loads once.</p>
+
+  <h2 class="sec">Hardware stubs</h2>
+  <p>Hosted <code>vectc</code> maps hardware primitives to safe stubs so graphics programs still run:</p>
+  <table>
+    <tr><th>Primitive</th><th>Hosted behavior</th></tr>
+    <tr><td><code>vga0x320200</code> (and presets)</td><td>Prints an init banner; a real framebuffer backend is planned</td></tr>
+    <tr><td><code>pout(port, val)</code> / <code>pin(port)</code></td><td>Accepted, no hardware touched</td></tr>
+    <tr><td><code>px(color, x, y)</code></td><td>Reserved for the framebuffer backend</td></tr>
+  </table>
+
+  <h2 class="sec">Errors</h2>
+  <p>Vect uses immediate failure: any fault (division by zero, bad index, bad handle, unknown variable or function) prints to <b>stderr</b> and exits non-zero:</p>
+<pre><code>[Vect Runtime Error]: Division by zero at line 14
+[Vect Execution Terminated]</code></pre>
+
+  <h2 class="sec">vectc CLI</h2>
+<pre><code>vectc program.vt            cmt compile to bytecode + run on the VM
+vectc --dump program.vt     cmt print disassembled chunks, don't run</code></pre>
+  <p>Exit code <code>0</code> on success, <code>1</code> on runtime error, <code>2</code> on usage error.</p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.1</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 · Data &amp; I/O — Vect docs</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.1 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>3 · Data &amp; I/O</h1>
+
+  <h2 class="sec">Arrays</h2>
+  <p><code>name(n)</code> allocates <code>n</code> zeroed integer slots:</p>
+<pre><code>scores(3)                 cmt allocate 3 slots
+set scores, 0, 10        cmt write index 0
+set scores, 1, 25
+(firstScore.get scores, 0)
+echo firstScore          cmt 10</code></pre>
+  <p>Out-of-bounds reads and writes halt the program with a line number.</p>
+
+  <h2 class="sec">Console I/O</h2>
+  <table>
+    <tr><th>Form</th><th>Does</th></tr>
+    <tr><td><code>echo "hi"</code> / <code>echo x</code></td><td>Print string or variable + newline (stdout)</td></tr>
+    <tr><td><code>echow timer, 100</code></td><td>Print value as a live overlay, refreshed in-place (FPS counters, status)</td></tr>
+    <tr><td><code>in(key)</code></td><td>Read one stdin line into a variable (numeric input becomes int)</td></tr>
+  </table>
+
+  <h2 class="sec">File I/O</h2>
+<pre><code>fopen fh, "notes.txt", "w"   cmt modes: "r" read, "w" write (truncate)
+fwrite fh, "hello vect"      cmt strings written raw, ints as decimal
+fclose fh
+fopen fr, "notes.txt", "r"
+(s.fread fr, 64)              cmt up to 64 bytes into s, "" at EOF
+fclose fr
+echo s</code></pre>
+  <p>Paths resolve relative to the folder you run <code>vectc</code> from. Using a closed or bad handle halts with a line number.</p>
+
+  <p style="color:var(--mut)">Next: <a href="docs-system.html">4 · System →</a></p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.1</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

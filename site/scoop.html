@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install with Scoop — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.1 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <h1 style="margin-top:36px">Install with Scoop</h1>
+  <p style="color:var(--mut)">Scoop is a command-line installer for Windows. Vect ships in its own bucket, so it never waits on store approval.</p>
+
+  <h2 class="sec">For users</h2>
+  <p>1 · Install Scoop itself (once):</p>
+  <div class="term"><span class="p">></span> irm get.scoop.sh | iex</div>
+  <p>2 · Add the Vect bucket and install:</p>
+  <div class="term"><span class="p">></span> scoop bucket add vect https://github.com/MerixCipher/scoop-bucket<br><span class="p">></span> scoop install vect/vectc</div>
+  <p>3 · Run it anywhere (Scoop puts <code>vectc</code> on PATH):</p>
+  <div class="term"><span class="p">></span> vectc hello.vt</div>
+  <p>Update later with <code>scoop update vectc</code>.</p>
+
+  <h2 class="sec">For maintainers (publishing a release)</h2>
+  <p>The bucket is just a repo holding one JSON file per app. To publish Vect vX.Y.Z:</p>
+  <ol>
+    <li>Build <code>vectc.exe</code> with <code>-O ReleaseFast</code>, zip it as <code>vectc-vX.Y.Z-windows-x64.zip</code>, upload to <code>site/dl/</code> ( published as <code>https://vect.onrender.com/dl/…</code> ).</li>
+    <li>Hash it: <code>Get-FileHash vectc-vX.Y.Z-windows-x64.zip -Algorithm SHA256</code>.</li>
+    <li>Put the version + URL + hash into <code>bucket/vectc.json</code> in the <code>scoop-bucket</code> repo (template lives in this repo under <code>scoop/</code>).</li>
+    <li>Test locally before pushing: <code>scoop install .\vectc.json</code>, then <code>vectc hello.vt</code>.</li>
+  </ol>
+
+  <h2 class="sec">Manifest reference</h2>
+<pre><code>{
+    "version": "0.2.1",
+    "description": "Vect ultra-compact low-level language toolchain",
+    "homepage": "https://vect.onrender.com",
+    "license": "GPL-3.0-only",
+    "architecture": {
+        "64bit": {
+            "url": "https://vect.onrender.com/dl/vectc-v0.2.1-windows-x64.zip",
+            "hash": "PUT-SHA256-HERE"
+        }
+    },
+    "bin": "vectc.exe",
+    "checkver": {
+        "url": "https://vect.onrender.com/dl/version.txt",
+        "regex": "([\\d.]+)"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://vect.onrender.com/dl/vectc-$version-windows-x64.zip"
+            }
+        }
+    }
+}</code></pre>
+  <p style="color:var(--mut)"><code>checkver</code> + <code>autoupdate</code> let <code>scoop update</code> discover new versions from a tiny <code>version.txt</code> file containing e.g. <code>0.2.1</code>. Keep that file next to the zips in <code>site/dl/</code>.</p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.1</span><span style="flex:1"></span><a href="download.html">Download</a><a href="docs.html">Docs</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>
