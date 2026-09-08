@@ -7,7 +7,7 @@
     "license": "UNLICENSED",
     "repository": {
         "type": "git",
-        "url": "https://github.com/MerixCipher/VectLang"
+        "url": "https://github.com/VectCode/VectLang"
     },
     "homepage": "https://vect.onrender.com",
     "engines": {
