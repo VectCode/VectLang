@@ -6,4 +6,5 @@ zig-out/
 .zig-cache/
 # local test leftovers
 vect_test.txt
-kv_test.kv
+*.kv
+todo.kv
