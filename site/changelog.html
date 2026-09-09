@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.3 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <h1 style="margin-top:36px">Changelog</h1>
+  <p style="color:var(--mut)">Every Vect release, what changed, and how to upgrade. Versions use three-part numbering. Nothing ships until its full test suite passes byte-identical output checks.</p>
+
+  <h2 class="sec">0.2.4 — in development, releases next</h2>
+  <p>The polish release: closes real gaps found while writing programs, and lays the last pieces 0.2.5's Vect-written lexer needs.</p>
+
+  <h3>Zero-argument target calls</h3>
+  <p>Calling a function that takes no arguments through target notation finally works. Before 0.2.4 only <code>(result.add 25, 75)</code> (with args) and bare <code>main()</code> worked — <code>(r.boom)</code> died with "Undefined variable". Now all three call forms work everywhere:</p>
+<pre><code>vectfn boom
+    v42
+    rtn v
+vectfn main
+    (r.boom)
+    echo r          cmt 42
+main()</code></pre>
+
+  <h3>String escapes</h3>
+  <p>String literals now process <code>\n</code> (newline), <code>\t</code> (tab), <code>\r</code>, <code>\\</code>, <code>\"</code> and <code>\0</code>. Unknown escapes (like <code>\x</code>) stay literal so old programs can't break silently:</p>
+<pre><code>echo "line1\nline2"</code></pre>
+
+  <h3><code>clock</code> timing primitive</h3>
+  <p><code>(t.clock)</code> returns integer milliseconds since the VM started. Built for honest benchmarking — wrap any block and subtract:</p>
+<pre><code>(t0.clock)
+lo1000
+    (x.x+1)
+(t1.clock)
+(elapsed.t1 - t0)
+echo elapsed</code></pre>
+
+  <h3><code>chr</code> primitive</h3>
+  <p><code>(s.chr 65)</code> builds the one-character string <code>"A"</code> from a code — the missing inverse of <code>(c.char s, i)</code>. Codes 0–255; anything else halts with a line number. This is the last primitive the 0.2.5 Vect lexer needs to build tokens character by character.</p>
+
+  <h3>Embedded key-value store</h3>
+  <p>A tiny NoSQL store for scripts: typed string/int/float values persisted to a length-prefixed text file (<code>S4:name4:vect</code> — readable and debuggable by hand):</p>
+<pre><code>kvopen db, "saves.kv"   cmt missing file starts empty
+kvset db, "name", "vect"
+kvset db, "score", 99
+kvsave db
+kvclose db
+kvopen db2, "saves.kv"
+(n.kvget db2, "name")
+(ok.kvexists db2, "missing")  cmt 0 when absent
+kvdel db2, "score"
+kvclose db2</code></pre>
+  <p>Rules: reading a missing key halts (check <code>kvexists</code> first), deleting a missing key is a silent no-op, arrays cannot be stored, and <code>kvclose</code> discards unsaved changes — call <code>kvsave</code> first.</p>
+
+  <h3><code>vectc --help</code></h3>
+  <p>Prints usage, the three run modes and the docs URL. <code>--version</code> (added in 0.2.3) now reports <code>vectc 0.2.4</code>.</p>
+
+  <h3>Upgrading from 0.2.3</h3>
+  <p>Fully backward compatible — every 0.2.3 program runs unchanged. New capabilities only: escapes activate automatically in old string literals (only affects strings that already contained backslashes), and <code>chr</code>/<code>clock</code>/<code>kv*</code> are new reserved words in target expressions, so rename any user function called <code>clock</code>, <code>chr</code>, <code>len</code>, <code>cat</code>, <code>cmp</code>, <code>char</code> or <code>get</code> before upgrading (the compiler will tell you with a clear error if you forget).</p>
+
+  <h2 class="sec">0.2.3 — current</h2>
+  <p>The expressiveness release: the two biggest spec gaps closed, plus error quality and distribution.</p>
+
+  <h3>Floats</h3>
+  <p>Compact float assignment (<code>y3.14</code>), float literals in expressions, and int↔float promotion across all five arithmetic ops and all six comparisons. Integer-only programs behave exactly as before (including truncating <code>/</code>); any float operand switches that operation to float. <code>sqrt</code> of a float returns a float; <code>sqrt</code> of an int still returns an int.</p>
+<pre><code>y3.14
+(r.y*2)      cmt 6.28
+a10
+(m.a+y)      cmt 13.14</code></pre>
+
+  <h3>String operations</h3>
+  <table>
+    <tr><th>Form</th><th>Does</th></tr>
+    <tr><td><code>(n.len s)</code></td><td>Byte length of a string, item count of an array</td></tr>
+    <tr><td><code>(c.char s, i)</code></td><td>Byte code at index (bounds-checked)</td></tr>
+    <tr><td><code>(ok.cmp a, b)</code></td><td>String ordering: -1 / 0 / 1</td></tr>
+    <tr><td><code>(out.cat a, b)</code></td><td>Concatenation; numbers auto-convert</td></tr>
+  </table>
+  <p>Strings also compare with all six comparison operators in <code>if</code> conditions (<code>if msg == msg</code>). Mixing strings with numbers in a comparison halts with a clear error instead of guessing.</p>
+
+  <h3>Filenames in errors</h3>
+  <p>Runtime faults inside <code>.vth</code> libraries now name the file: <code>at line 4 (mylib.vth)</code>. Errors in the main file keep the classic short format. Compile-time errors in headers name the header too.</p>
+
+  <h3>Distribution</h3>
+  <p><code>--version</code> flag, Scoop alias <code>vect</code> alongside <code>vectc</code>, VS Code extension v0.2.3, documentation split into four chapters, VirusTotal-verified release zip with published hash.</p>
+
+  <h3>Upgrading from 0.2.1</h3>
+  <p>Backward compatible, with two notes: float-looking trailing text like <code>y3.14</code> previously errored and now assigns (nothing working changed meaning), and string-vs-number comparisons that used to attempt numeric parsing now halt — almost always a latent bug being surfaced, but check any program comparing user input with <code>==</code>.</p>
+
+  <h2 class="sec">0.2.2</h2>
+  <p>Intentionally skipped — its scope shipped as 0.2.3 instead. There is no 0.2.2 and there never will be; do not go looking for it. Package managers jump straight from 0.2.1 to 0.2.3.</p>
+
+  <h2 class="sec">0.2.1 — first public release</h2>
+  <p>The foundation everything since is built on:</p>
+  <ul>
+    <li><b>Bytecode compiler + stack VM</b> replacing the original tree-walk interpreter — 33-op instruction set, per-function chunks, call frames, per-instruction line tracking, and a <code>--dump</code> disassembler.</li>
+    <li><b>Real stdout</b> for <code>echo</code>/<code>echow</code>/VGA banners (errors stay on stderr per spec).</li>
+    <li><b>File primitives</b> <code>fopen/fread/fwrite/fclose</code> with text and integer I/O.</li>
+    <li><b>Real <code>.vth</code> includes</b> — directory-relative, nesting, loaded once, restricted to <code>vectfn</code> definitions.</li>
+    <li><b><code>if</code>/<code>els</code></b> dual branches via a new jump op.</li>
+    <li><b>Scoop distribution</b> with hash-pinned manifest, plus the static website with full reference docs.</li>
+  </ul>
+  <p>Still downloadable as a zip for archival purposes, but Scoop serves 0.2.3+.</p>
+
+  <h2 class="sec">Pre-0.2.1</h2>
+  <p>Internal development builds (0.1.x–0.2.0), including the original tree-walk interpreter era. Release status is under consideration — they are not published, not supported, and not recommended for any use. Anything you find labeled older than 0.2.1 should be treated as archaeology, not software.</p>
+
+  <h2 class="sec">How releases work</h2>
+  <p>Every release follows the same drill so any version can be re-verified later: full test suite must pass byte-identical, release zip built with <code>-O ReleaseFast</code>, SHA-256 published in the Scoop manifest, independent VirusTotal scan linked from the download page, changelog entry written, version badges bumped across the site. If any step fails, the version does not ship.</p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.3</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>
