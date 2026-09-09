@@ -1,0 +1,53 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    cmt secret word is vect - 4 letters, 6 lives
+    msg"vect"
+    (n.len msg)
+    rev(4)
+    lives6
+    shown0
+    done0
+    lo100w done == 0
+        cmt draw current progress
+        disp""
+        i0
+        lo4
+            (flag.get rev, i)
+            (code.char msg, i)
+            if flag == 1
+                (ch.chr code)
+                (disp.cat disp, ch)
+            els
+                (disp.cat disp, "_")
+            (i.i+1)
+        echo disp
+        echo "lives:"
+        echo lives
+        cmt read guess, normalize so empty input can't crash
+        in(guess)
+        (clean.cat guess, "")
+        (gcode.char clean, 0)
+        found0
+        j0
+        lo4
+            (code2.char msg, j)
+            if code2 == gcode
+                (old.get rev, j)
+                if old == 0
+                    set rev, j, 1
+                    (shown.shown+1)
+                found1
+            (j.j+1)
+        if found == 0
+            (lives.lives-1)
+        if shown == n
+            echo "win"
+            done1
+        if lives == 0
+            echo "lose, word was:"
+            echo msg
+            done1
+main()

@@ -1,0 +1,18 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "first 22 fibonacci numbers:"
+    a0
+    b1
+    echo a
+    echo b
+    i0
+    lo20
+        (c.a+b)
+        echo c
+        (a.b)
+        (b.c)
+        (i.i+1)
+main()

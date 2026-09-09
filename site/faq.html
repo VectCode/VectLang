@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>Frequently asked questions</h1>
+
+  <h2 class="sec">Is Vect real? Can I run it today?</h2>
+  <p>Yes. Install via Scoop, save any example into a <code>.vt</code> file, run <code>vect file.vt</code>. <code>vect --dump</code> shows the actual bytecode your program compiled to — a fake language couldn't do that.</p>
+
+  <h2 class="sec">Is it safe?</h2>
+  <p>Every release zip is scanned by ~70 antivirus engines on VirusTotal before announcement, with the public report linked on the <a href="download.html">download page</a> and SHA-256 hashes published for independent verification. Windows SmartScreen may still warn because the binary is unsigned (no publisher certificate yet) — that warning is about identity, not detected malware.</p>
+
+  <h2 class="sec">Is Vect open source?</h2>
+  <p>No. Vect is proprietary: all rights reserved. Sources are visible on GitHub for transparency; the compiler binary is free to download and use under the <code>TERMS.txt</code> shipped in every release (no redistribution, no reverse-engineering, no resale).</p>
+
+  <h2 class="sec">Who makes Vect?</h2>
+  <p>Designed and built solo by <b>paraxapp</b> — language, compiler, docs, releases, everything. Solo-built is the norm for young languages, and one head keeps the architecture coherent.</p>
+
+  <h2 class="sec">Windows only?</h2>
+  <p>Today, yes (x64). A Linux build is planned for 0.2.6 — the compiler is written in Zig and cross-compiles cleanly; what remains is testing and packaging.</p>
+
+  <h2 class="sec">How fast is it?</h2>
+  <p>It's a bytecode VM, not native code — expect scripting-language speed, honestly measured. Time anything yourself with the <code>clock</code> primitive (see the <a href="examples.html">prime sieve</a>), and don't trust any benchmark without a <code>--dump</code> next to it. Native compilation is the 0.3 milestone.</p>
+
+  <h2 class="sec">Why is the syntax so compact?</h2>
+  <p>Density is the design goal: whole programs in a handful of lines, zero boilerplate. <code>x10</code> reads as a typo on day one and as obvious on day three. If it feels alien, the <a href="getting-started.html">5-minute guide</a> is the fastest way through.</p>
+
+  <h2 class="sec">Can I use Vect commercially?</h2>
+  <p>Running your own programs: yes, that's what the free-use terms cover. Redistributing the compiler itself, embedding it in a product, or selling anything built on the toolchain: contact <a href="mailto:vectlang@proton.me">vectlang@proton.me</a> first.</p>
+
+  <h2 class="sec">How do I report a bug?</h2>
+  <p>Email <a href="mailto:vectlangsupport@proton.me">vectlangsupport@proton.me</a> with your <code>.vt</code> file, the command you ran, and the full error output. Minimal reproducers get fixed first.</p>
+
+  <h2 class="sec">How can I help?</h2>
+  <p>Write programs and share them, report bugs with reproducers, improve docs understanding by asking questions, make videos. Code contributions to the compiler aren't accepted (proprietary), but great example programs may ship with the release.</p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

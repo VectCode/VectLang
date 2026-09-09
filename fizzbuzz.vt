@@ -1,0 +1,21 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    i1
+    lo100w i <= 100
+        (a.i%3)
+        (b.i%5)
+        if a == 0
+            if b == 0
+                echo "fizzbuzz"
+            els
+                echo "fizz"
+        els
+            if b == 0
+                echo "buzz"
+            els
+                echo i
+        (i.i+1)
+main()

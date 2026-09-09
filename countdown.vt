@@ -1,0 +1,20 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "seconds:"
+    in(s)
+    (ms.s*1000)
+    (t.clock)
+    (end.t+ms)
+    done0
+    lo1000w done == 0
+        (now.clock)
+        (left.end-now)
+        (sec.left/1000)
+        echow sec, 200
+        if left <= 0
+            done1
+    echo "done"
+main()

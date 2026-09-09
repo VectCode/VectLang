@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>Getting started in 5 minutes</h1>
+
+  <h2 class="sec">1 · Install (2 min)</h2>
+  <p>Windows x64, via Scoop:</p>
+  <div class="term"><span class="p">></span> scoop bucket add vect https://github.com/MerixCipher/scoop-bucket<br><span class="p">></span> scoop install vect/vectc</div>
+  <p>No Scoop? Grab the zip on the <a href="download.html">download page</a>, unzip, and run <code>vectc</code> from that folder. Verify with <code>vect --version</code>.</p>
+
+  <h2 class="sec">2 · First program (2 min)</h2>
+  <p>Save this as <code>hello.vt</code> next to <code>mvga.vth</code> (or any folder — includes resolve relative to your file):</p>
+<pre><code>vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "Hello, World!"
+main()</code></pre>
+  <div class="term"><span class="p">></span> vect hello.vt<br>Hello, World!</div>
+
+  <h2 class="sec">3 · What just happened (1 min)</h2>
+  <p>The four header lines boot the runtime and jump to <code>main</code>. <code>vectfn main</code> defines it, <code>echo</code> prints, <code>main()</code> calls it. Three ideas carry the whole language from here:</p>
+  <ul>
+    <li><b>Compact assignment:</b> <code>x10</code> means <code>x = 10</code>.</li>
+    <li><b>Target math:</b> <code>(c.a+b)</code> means <code>c = a + b</code>.</li>
+    <li><b>Indentation:</b> blocks are 4 spaces, one statement per line.</li>
+  </ul>
+
+  <h2 class="sec">Next steps</h2>
+  <ul>
+    <li><a href="examples.html">20 examples</a> — calculator, games, files, all runnable</li>
+    <li><a href="docs-syntax.html">Syntax &amp; math</a> — the full reference, four chapters</li>
+    <li><code>vect --dump hello.vt</code> — see the bytecode your program compiled to</li>
+    <li><code>vect --help</code> — every flag</li>
+  </ul>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

@@ -49,7 +49,7 @@
             }
         },
         "keywords": {
-            "match": "\\b(rtn|if|els|echo|echow|in|set|get|fopen|fread|fwrite|fclose|pout|pin|sqrt|bit|shl|shr|not|AND|OR|XOR|vga\\w*)\\b",
+            "match": "\\b(rtn|if|els|echo|echow|in|set|get|fopen|fread|fwrite|fclose|kvopen|kvset|kvget|kvexists|kvdel|kvsave|kvclose|clock|chr|len|char|cmp|cat|pout|pin|sqrt|bit|shl|shr|not|AND|OR|XOR|vga\\w*)\\b",
             "captures": {
                 "1": { "name": "keyword.control.vect" }
             }

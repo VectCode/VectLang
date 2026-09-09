@@ -1,0 +1,20 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "primes under 100:"
+    flags(100)
+    set flags, 0, 1
+    set flags, 1, 1
+    i2
+    lo100w i < 100
+        (f.get flags, i)
+        if f == 0
+            echo i
+            (m.i*2)
+            lo100w m < 100
+                set flags, m, 1
+                (m.m+i)
+        (i.i+1)
+main()

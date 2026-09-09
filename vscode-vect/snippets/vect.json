@@ -43,5 +43,15 @@
         "prefix": "vecho",
         "body": ["echo \"${1:text}\"$0"],
         "description": "Vect echo"
+    },
+    "Vect KV store": {
+        "prefix": "vkv",
+        "body": ["kvopen ${1:db}, \"${2:saves.kv}\"", "kvset ${1:db}, \"${3:key}\", ${4:val}", "kvsave ${1:db}", "kvclose ${1:db}$0"],
+        "description": "Vect key-value store block"
+    },
+    "Vect clock": {
+        "prefix": "vclock",
+        "body": ["(${1:t0}.clock)", "$0", "(${2:t1}.clock)", "(elapsed.${2:t1} - ${1:t0})"],
+        "description": "Vect timing block"
     }
 }

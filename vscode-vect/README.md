@@ -19,7 +19,7 @@ https://vect.onrender.com
 
 ```powershell
 npm install -g @vscode/vsce
-vsce package        # builds vect-0.2.1.vsix
+vsce package        # builds vect-0.2.4.vsix
 vsce publish        # needs publisher "merixcipher" (Microsoft account)
 ```
 

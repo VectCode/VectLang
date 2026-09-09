@@ -152,6 +152,206 @@ main()</code></pre>
     echo n
     kvclose db2
 main()</code></pre>
+  <div class="codehead"><b>11 · Calculator</b><button data-copy="e11">copy</button></div>
+<pre><code id="e11">vectfn main
+    echo "first number:"
+    in(a)
+    echo "op (+ - * /):"
+    in(op)
+    echo "second number:"
+    in(b)
+    if op == "+"
+        (r.a+b)
+    els
+        if op == "-"
+            (r.a-b)
+        els
+            if op == "*"
+                (r.a*b)
+            els
+                (r.a/b)
+    echo "result:"
+    echo r
+main()</code></pre>
+
+  <div class="codehead"><b>12 · Rock-paper-scissors</b><button data-copy="e12">copy</button></div>
+<pre><code id="e12">vectfn main
+    echo "0 rock, 1 paper, 2 scissors:"
+    in(u)
+    (t.clock)
+    (pick.t%3)
+    (d.u-pick)
+    (d.d+3)
+    (d.d%3)
+    if d == 0
+        echo "draw"
+    els
+        if d == 1
+            echo "you win"
+        els
+            echo "computer wins"
+main()</code></pre>
+
+  <div class="codehead"><b>13 · Prime sieve</b><button data-copy="e13">copy</button></div>
+<pre><code id="e13">vectfn main
+    flags(100)
+    set flags, 0, 1
+    set flags, 1, 1
+    i2
+    lo100w i &lt; 100
+        (f.get flags, i)
+        if f == 0
+            echo i
+            (m.i*2)
+            lo100w m &lt; 100
+                set flags, m, 1
+                (m.m+i)
+        (i.i+1)
+main()</code></pre>
+
+  <div class="codehead"><b>14 · Fibonacci</b><button data-copy="e14">copy</button></div>
+<pre><code id="e14">vectfn main
+    a0
+    b1
+    echo a
+    echo b
+    i0
+    lo20
+        (c.a+b)
+        echo c
+        (a.b)
+        (b.c)
+        (i.i+1)
+main()</code></pre>
+
+  <div class="codehead"><b>15 · FizzBuzz</b><button data-copy="e15">copy</button></div>
+<pre><code id="e15">vectfn main
+    i1
+    lo100w i &lt;= 100
+        (a.i%3)
+        (b.i%5)
+        if a == 0
+            if b == 0
+                echo "fizzbuzz"
+            els
+                echo "fizz"
+        els
+            if b == 0
+                echo "buzz"
+            els
+                echo i
+        (i.i+1)
+main()</code></pre>
+
+  <div class="codehead"><b>16 · Persistent todo (KV store)</b><button data-copy="e16">copy</button></div>
+<pre><code id="e16">vectfn main
+    kvopen db, "todo.kv"
+    (n.kvexists db, "count")
+    if n == 0
+        kvset db, "count", 0
+    echo "1 add, 2 list:"
+    in(choice)
+    if choice == 1
+        (c.kvget db, "count")
+        in(item)
+        (key.cat "t", c)
+        kvset db, key, item
+        (c.c+1)
+        kvset db, "count", c
+        kvsave db
+    els
+        (c.kvget db, "count")
+        i0
+        lo100w i &lt; c
+            (key.cat "t", i)
+            (v.kvget db, key)
+            echo v
+            (i.i+1)
+    kvclose db
+main()</code></pre>
+
+  <div class="codehead"><b>17 · Grade calculator</b><button data-copy="e17">copy</button></div>
+<pre><code id="e17">vectfn main
+    echo "score 0-100:"
+    in(s)
+    if s &gt;= 90
+        echo "A"
+    els
+        if s &gt;= 80
+            echo "B"
+        els
+            echo "C or below"
+main()</code></pre>
+
+  <div class="codehead"><b>18 · String reverse</b><button data-copy="e18">copy</button></div>
+<pre><code id="e18">vectfn main
+    in(s)
+    (clean.cat s, "")
+    (n.len clean)
+    out""
+    (i.n-1)
+    lo100w i &gt;= 0
+        (code.char clean, i)
+        (ch.chr code)
+        (out.cat out, ch)
+        (i.i-1)
+    echo out
+main()</code></pre>
+
+  <div class="codehead"><b>19 · Tic-tac-toe (2 player)</b><button data-copy="e19">copy</button></div>
+<pre><code id="e19">vectfn line3.a, b, c
+    if a == 0
+        rtn 0
+    if a == b
+        if b == c
+            rtn 1
+    rtn 0
+vectfn main
+    b(9)
+    turn1
+    moves0
+    done0
+    lo9w done == 0
+        in(cell)
+        (old.get b, cell)
+        if old == 0
+            set b, cell, turn
+            (moves.moves+1)
+            cmt check all 8 lines, e.g. top row:
+            (x.get b, 0)
+            (y.get b, 1)
+            (z.get b, 2)
+            (w.line3 x, y, z)
+            if w == 1
+                echo turn
+                done1
+            if moves == 9
+                echo "draw"
+                done1
+            if turn == 1
+                turn2
+            els
+                turn1
+        els
+            echo "taken"
+main()</code></pre>
+
+  <div class="codehead"><b>20 · Countdown timer</b><button data-copy="e20">copy</button></div>
+<pre><code id="e20">vectfn main
+    in(s)
+    (ms.s*1000)
+    (t.clock)
+    (end.t+ms)
+    done0
+    lo1000w done == 0
+        (now.clock)
+        (left.end-now)
+        (sec.left/1000)
+        echow sec, 200
+        if left &lt;= 0
+            done1
+    echo "done"
+main()</code></pre>
 </main>
 
 <footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>

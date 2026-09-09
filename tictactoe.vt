@@ -1,0 +1,100 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn line3.a, b, c
+    if a == 0
+        rtn 0
+    if a == b
+        if b == c
+            rtn 1
+    rtn 0
+vectfn main
+    echo "tic-tac-toe: 1 is X, 2 is O, cells 0-8"
+    b(9)
+    turn1
+    moves0
+    done0
+    lo9w done == 0
+        echo "player:"
+        echo turn
+        echo "cell:"
+        in(cell)
+        (old.get b, cell)
+        if old == 0
+            set b, cell, turn
+            (moves.moves+1)
+            (x.get b, 0)
+            (y.get b, 1)
+            (z.get b, 2)
+            (w.line3 x, y, z)
+            if w == 1
+                echo "winner:"
+                echo turn
+                done1
+            (x.get b, 3)
+            (y.get b, 4)
+            (z.get b, 5)
+            (w.line3 x, y, z)
+            if w == 1
+                echo "winner:"
+                echo turn
+                done1
+            (x.get b, 6)
+            (y.get b, 7)
+            (z.get b, 8)
+            (w.line3 x, y, z)
+            if w == 1
+                echo "winner:"
+                echo turn
+                done1
+            (x.get b, 0)
+            (y.get b, 3)
+            (z.get b, 6)
+            (w.line3 x, y, z)
+            if w == 1
+                echo "winner:"
+                echo turn
+                done1
+            (x.get b, 1)
+            (y.get b, 4)
+            (z.get b, 7)
+            (w.line3 x, y, z)
+            if w == 1
+                echo "winner:"
+                echo turn
+                done1
+            (x.get b, 2)
+            (y.get b, 5)
+            (z.get b, 8)
+            (w.line3 x, y, z)
+            if w == 1
+                echo "winner:"
+                echo turn
+                done1
+            (x.get b, 0)
+            (y.get b, 4)
+            (z.get b, 8)
+            (w.line3 x, y, z)
+            if w == 1
+                echo "winner:"
+                echo turn
+                done1
+            (x.get b, 2)
+            (y.get b, 4)
+            (z.get b, 6)
+            (w.line3 x, y, z)
+            if w == 1
+                echo "winner:"
+                echo turn
+                done1
+            if moves == 9
+                echo "draw"
+                done1
+            if turn == 1
+                turn2
+            els
+                turn1
+        els
+            echo "taken"
+main()

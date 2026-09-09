@@ -1,0 +1,34 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    kvopen db, "todo.kv"
+    (n.kvexists db, "count")
+    if n == 0
+        kvset db, "count", 0
+    echo "1 add, 2 list:"
+    in(choice)
+    if choice == 1
+        (c.kvget db, "count")
+        echo "item text:"
+        in(item)
+        (key.cat "t", c)
+        kvset db, key, item
+        (c.c+1)
+        kvset db, "count", c
+        kvsave db
+        echo "saved"
+    els
+        (c.kvget db, "count")
+        echo "todos:"
+        i0
+        lo100w i < c
+            (key.cat "t", i)
+            (ok.kvexists db, key)
+            if ok == 1
+                (v.kvget db, key)
+                echo v
+            (i.i+1)
+    kvclose db
+main()

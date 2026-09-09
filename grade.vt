@@ -1,0 +1,21 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "score 0-100:"
+    in(s)
+    if s >= 90
+        echo "A"
+    els
+        if s >= 80
+            echo "B"
+        els
+            if s >= 70
+                echo "C"
+            els
+                if s >= 60
+                    echo "D"
+                els
+                    echo "F"
+main()

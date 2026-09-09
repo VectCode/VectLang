@@ -1,0 +1,24 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "first number:"
+    in(a)
+    echo "op (+ - * /):"
+    in(op)
+    echo "second number:"
+    in(b)
+    if op == "+"
+        (r.a+b)
+    els
+        if op == "-"
+            (r.a-b)
+        els
+            if op == "*"
+                (r.a*b)
+            els
+                (r.a/b)
+    echo "result:"
+    echo r
+main()

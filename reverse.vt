@@ -1,0 +1,18 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "text to reverse:"
+    in(s)
+    (clean.cat s, "")
+    (n.len clean)
+    out""
+    (i.n-1)
+    lo100w i >= 0
+        (code.char clean, i)
+        (ch.chr code)
+        (out.cat out, ch)
+        (i.i-1)
+    echo out
+main()

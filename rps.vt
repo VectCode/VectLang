@@ -1,0 +1,22 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "0 rock, 1 paper, 2 scissors:"
+    in(u)
+    (t.clock)
+    (pick.t%3)
+    (d.u-pick)
+    (d.d+3)
+    (d.d%3)
+    echo "computer picked:"
+    echo pick
+    if d == 0
+        echo "draw"
+    els
+        if d == 1
+            echo "you win"
+        els
+            echo "computer wins"
+main()
