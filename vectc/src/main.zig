@@ -1,4 +1,4 @@
-const std = @import("std");
+﻿const std = @import("std");
 
 // vectc v0.2 — Vect (.vt) bytecode compiler + stack VM, written in Zig.
 //
@@ -63,8 +63,7 @@ fn intStr(buf: *[32]u8, v: i64) []const u8 {
     return buf[i..];
 }
 
-fn stripComment(s: []const u8) []const u8 {
-    var in_str = false;
+fn stripComment(s: []const u8) []const u8 {    var in_str = false;
     var i: usize = 0;
     while (i < s.len) {
         if (s[i] == '"') {
@@ -82,8 +81,37 @@ fn stripComment(s: []const u8) []const u8 {
     return s;
 }
 
-fn isFloatLit(s: []const u8) bool {
-    const t = std.mem.trim(u8, s, " \t");
+// \" \\ \n \t \r \0 inside string literals; unknown escapes stay literal.
+fn unescape(alloc: std.mem.Allocator, s: []const u8) error{OutOfMemory}![]const u8 {
+    const out = try alloc.alloc(u8, s.len);
+    var n: usize = 0;
+    var i: usize = 0;
+    while (i < s.len) {
+        if (s[i] == '\\' and i + 1 < s.len) {
+            const e: ?u8 = switch (s[i + 1]) {
+                'n' => '\n',
+                't' => '\t',
+                'r' => '\r',
+                '\\' => '\\',
+                '"' => '"',
+                '0' => 0,
+                else => null,
+            };
+            if (e) |c| {
+                out[n] = c;
+                n += 1;
+                i += 2;
+                continue;
+            }
+        }
+        out[n] = s[i];
+        n += 1;
+        i += 1;
+    }
+    return out[0..n];
+}
+
+fn isFloatLit(s: []const u8) bool {    const t = std.mem.trim(u8, s, " \t");
     if (t.len == 0) return false;
     if (std.mem.indexOfScalar(u8, t, '.') == null) return false;
     const c0 = t[0];
@@ -132,6 +160,8 @@ const Op = enum(u8) {
     shr,
     bitnot,
     sqrt,
+    clock, // pushes ms since VM start
+    chr, // pops char code int, pushes 1-char string
     len, // pops value, pushes int length (strings: bytes, arrays: items)
     charat, // pops idx, then string ; pushes char code int
     cmpstr, // pops b, then a (strings) ; pushes -1/0/1
@@ -150,6 +180,13 @@ const Op = enum(u8) {
     fread, // a = dst slot, b = fh slot ; pops nbytes
     fwrite, // a = fh slot ; pops value
     fclose, // a = fh slot
+    kvopen, // a = dst slot ; pops path
+    kvget, // a = dst slot, b = kv slot ; pops key
+    kvexists, // a = dst slot, b = kv slot ; pops key, pushes 1/0
+    kvset, // a = kv slot ; pops key, then value
+    kvdel, // a = kv slot ; pops key
+    kvsave, // a = kv slot
+    kvclose, // a = kv slot
     call, // a = func idx ; pops arity args, pushes return val
     ret, // pops 1 as return value
     halt,
@@ -256,7 +293,7 @@ const Compiler = struct {
         const t = std.mem.trim(u8, s, " \t");
         if (t.len == 0) fail(lineno, "Empty expression", .{});
         if (t.len >= 2 and t[0] == '"' and t[t.len - 1] == '"') {
-            const c = try self.intern(t[1 .. t.len - 1]);
+            const c = try self.intern(try unescape(self.alloc, t[1 .. t.len - 1]));
             _ = try self.emit(.push_str, c, 0, lineno);
             return;
         }
@@ -346,6 +383,22 @@ const Compiler = struct {
             _ = try self.emit(.fread, dst, fh, lineno);
             return;
         }
+        if (std.mem.startsWith(u8, r, "kvget ") or std.mem.startsWith(u8, r, "kvget\t")) {
+            const parts = try self.splitParts(std.mem.trim(u8, r[5..], " \t"), ',');
+            if (parts.len != 2) fail(lineno, "kvget needs 'db, key'", .{});
+            const db = try self.needSlot(parts[0], lineno);
+            try self.compileOperand(parts[1], lineno);
+            _ = try self.emit(.kvget, dst, db, lineno);
+            return;
+        }
+        if (std.mem.startsWith(u8, r, "kvexists ") or std.mem.startsWith(u8, r, "kvexists\t")) {
+            const parts = try self.splitParts(std.mem.trim(u8, r[8..], " \t"), ',');
+            if (parts.len != 2) fail(lineno, "kvexists needs 'db, key'", .{});
+            const db = try self.needSlot(parts[0], lineno);
+            try self.compileOperand(parts[1], lineno);
+            _ = try self.emit(.kvexists, dst, db, lineno);
+            return;
+        }
         if (std.mem.startsWith(u8, r, "get ") or std.mem.startsWith(u8, r, "get\t")) {
             const parts = try self.splitParts(std.mem.trim(u8, r[3..], " \t"), ',');
             if (parts.len != 2) fail(lineno, "get needs 'arr, idx'", .{});
@@ -388,6 +441,28 @@ const Compiler = struct {
             return;
         }
         // AND / OR / XOR word operators: (c.a AND b)
+        // zero-arg call: (name.func) with no arguments
+        if (std.mem.indexOfAny(u8, r, " \t") == null) {
+            if (self.prog.func_index.get(r)) |fi| {
+                const want = self.prog.chunks.items[fi].arity;
+                if (want != 0) fail(lineno, "Function expects {d} args, got 0", .{want});
+                _ = try self.emit(.call, @intCast(fi), 0, lineno);
+                _ = try self.emit(.store, dst, 0, lineno);
+                return;
+            }
+        }
+        // clock: (t.clock) with nothing after
+        if (std.mem.eql(u8, r, "clock")) {
+            _ = try self.emit(.clock, 0, 0, lineno);
+            _ = try self.emit(.store, dst, 0, lineno);
+            return;
+        }
+        if (std.mem.startsWith(u8, r, "chr ") or std.mem.startsWith(u8, r, "chr\t")) {
+            try self.compileOperand(std.mem.trim(u8, r[3..], " \t"), lineno);
+            _ = try self.emit(.chr, 0, 0, lineno);
+            _ = try self.emit(.store, dst, 0, lineno);
+            return;
+        }
         for ([_][]const u8{ " AND ", " OR ", " XOR " }) |wop| {
             if (std.mem.indexOf(u8, r, wop)) |pos| {
                 try self.compileOperand(r[0..pos], lineno);
@@ -646,6 +721,56 @@ const Compiler = struct {
             return idx + 1;
         }
 
+        if (std.mem.startsWith(u8, t, "kvopen ") or std.mem.startsWith(u8, t, "kvopen\t")) {
+            const parts = try self.splitParts(std.mem.trim(u8, t[6..], " \t"), ',');
+            if (parts.len != 2) fail(ln.lineno, "kvopen needs 'db, path'", .{});
+            if (!isIdent(parts[0])) fail(ln.lineno, "Bad store '{s}'", .{parts[0]});
+            const dst = try self.slotOf(parts[0], ln.lineno);
+            try self.compileOperand(parts[1], ln.lineno);
+            _ = try self.emit(.kvopen, dst, 0, ln.lineno);
+            if (end != idx) fail(ln.lineno, "Unexpected indented block", .{});
+            return idx + 1;
+        }
+
+        if (std.mem.startsWith(u8, t, "kvset ") or std.mem.startsWith(u8, t, "kvset\t")) {
+            const parts = try self.splitParts(std.mem.trim(u8, t[5..], " \t"), ',');
+            if (parts.len != 3) fail(ln.lineno, "kvset needs 'db, key, val'", .{});
+            const db = try self.needSlot(parts[0], ln.lineno);
+            try self.compileOperand(parts[1], ln.lineno); // key
+            try self.compileOperand(parts[2], ln.lineno); // val
+            _ = try self.emit(.kvset, db, 0, ln.lineno);
+            if (end != idx) fail(ln.lineno, "Unexpected indented block", .{});
+            return idx + 1;
+        }
+
+        if (std.mem.startsWith(u8, t, "kvdel ") or std.mem.startsWith(u8, t, "kvdel\t")) {
+            const parts = try self.splitParts(std.mem.trim(u8, t[5..], " \t"), ',');
+            if (parts.len != 2) fail(ln.lineno, "kvdel needs 'db, key'", .{});
+            const db = try self.needSlot(parts[0], ln.lineno);
+            try self.compileOperand(parts[1], ln.lineno);
+            _ = try self.emit(.kvdel, db, 0, ln.lineno);
+            if (end != idx) fail(ln.lineno, "Unexpected indented block", .{});
+            return idx + 1;
+        }
+
+        if (std.mem.startsWith(u8, t, "kvsave ") or std.mem.startsWith(u8, t, "kvsave\t") or std.mem.eql(u8, t, "kvsave")) {
+            const after = if (t.len > 6) std.mem.trim(u8, t[6..], " \t") else "";
+            if (after.len == 0) fail(ln.lineno, "kvsave needs a store", .{});
+            const db = try self.needSlot(after, ln.lineno);
+            _ = try self.emit(.kvsave, db, 0, ln.lineno);
+            if (end != idx) fail(ln.lineno, "Unexpected indented block", .{});
+            return idx + 1;
+        }
+
+        if (std.mem.startsWith(u8, t, "kvclose ") or std.mem.startsWith(u8, t, "kvclose\t") or std.mem.eql(u8, t, "kvclose")) {
+            const after = if (t.len > 7) std.mem.trim(u8, t[7..], " \t") else "";
+            if (after.len == 0) fail(ln.lineno, "kvclose needs a store", .{});
+            const db = try self.needSlot(after, ln.lineno);
+            _ = try self.emit(.kvclose, db, 0, ln.lineno);
+            if (end != idx) fail(ln.lineno, "Unexpected indented block", .{});
+            return idx + 1;
+        }
+
         if (std.mem.startsWith(u8, t, "vga")) {
             const c = try self.intern(t);
             _ = try self.emit(.push_str, c, 0, ln.lineno);
@@ -715,7 +840,7 @@ const Compiler = struct {
         if (std.mem.indexOfScalar(u8, t, '"')) |qp| {
             const name = std.mem.trim(u8, t[0..qp], " \t");
             if (isIdent(name) and std.mem.endsWith(u8, t, "\"")) {
-                const c = try self.intern(t[qp + 1 .. t.len - 1]);
+                const c = try self.intern(try unescape(self.alloc, t[qp + 1 .. t.len - 1]));
                 const sl = try self.slotOf(name, ln.lineno);
                 _ = try self.emit(.push_str, c, 0, ln.lineno);
                 _ = try self.emit(.store, sl, 0, ln.lineno);
@@ -836,6 +961,12 @@ const VVal = struct {
     arr: usize = 0,
 };
 
+const KV = struct {
+    path: []const u8,
+    keys: std.ArrayList([]const u8),
+    vals: std.ArrayList(VVal),
+};
+
 const Num = struct {
     is_f: bool = false,
     i: i64 = 0,
@@ -868,8 +999,10 @@ const Vm = struct {
     prog: *Program,
     arrays: std.ArrayList([]i64),
     files: std.ArrayList(?std.Io.File),
+    kvs: std.ArrayList(?KV),
     frames: [64]Frame = undefined,
     depth: usize = 0,
+    t0: std.Io.Clock.Timestamp = undefined,
 
     fn curLine(self: *Vm) u32 {
         const f = &self.frames[self.depth - 1];
@@ -972,8 +1105,7 @@ const Vm = struct {
         };
     }
 
-    fn toStr(self: *Vm, v: VVal, ln: u32) error{OutOfMemory}![]const u8 {
-        switch (v.tag) {
+    fn toStr(self: *Vm, v: VVal, ln: u32) error{OutOfMemory}![]const u8 {        switch (v.tag) {
             .Str => return v.str,
             .Int => {
                 var nb: [32]u8 = undefined;
@@ -1024,7 +1156,90 @@ const Vm = struct {
         return s;
     }
 
+    fn kvAt(self: *Vm, slot_v: VVal, ln: u32) *KV {
+        if (slot_v.tag != .Int) fail(ln, "Bad store handle", .{});
+        const id: usize = @intCast(slot_v.int);
+        if (id >= self.kvs.items.len or self.kvs.items[id] == null) fail(ln, "Store not open", .{});
+        return &self.kvs.items[id].?;
+    }
+
+    fn kvFind(kv: *KV, key: []const u8) ?usize {
+        for (kv.keys.items, 0..) |k, i| {
+            if (std.mem.eql(u8, k, key)) return i;
+        }
+        return null;
+    }
+
+    // record: T<klen>:<key><vlen>:<val>\n   T = S/I/F
+    fn kvLoad(self: *Vm, kv: *KV, ln: u32) error{OutOfMemory}!void {
+        const data = std.Io.Dir.cwd().readFileAlloc(self.io, kv.path, self.alloc, .limited(8 * 1024 * 1024)) catch |e| {
+            if (e == error.FileNotFound) return; // first run: start empty
+            fail(ln, "Cannot open store '{s}'", .{kv.path});
+        };
+        var p: usize = 0;
+        while (p < data.len) {
+            if (p + 3 > data.len) fail(ln, "Corrupt store '{s}'", .{kv.path});
+            const tag = data[p];
+            if (tag != 'S' and tag != 'I' and tag != 'F') fail(ln, "Corrupt store '{s}'", .{kv.path});
+            p += 1;
+            const cs = p;
+            while (p < data.len and data[p] != ':') : (p += 1) {}
+            if (p >= data.len) fail(ln, "Corrupt store '{s}'", .{kv.path});
+            const klen = std.fmt.parseInt(usize, data[cs..p], 10) catch fail(ln, "Corrupt store '{s}'", .{kv.path});
+            p += 1;
+            if (p + klen > data.len) fail(ln, "Corrupt store '{s}'", .{kv.path});
+            const key = data[p .. p + klen];
+            p += klen;
+            const vs = p;
+            while (p < data.len and data[p] != ':') : (p += 1) {}
+            if (p >= data.len) fail(ln, "Corrupt store '{s}'", .{kv.path});
+            const vlen = std.fmt.parseInt(usize, data[vs..p], 10) catch fail(ln, "Corrupt store '{s}'", .{kv.path});
+            p += 1;
+            if (p + vlen + 1 > data.len or data[p + vlen] != '\n') fail(ln, "Corrupt store '{s}'", .{kv.path});
+            const val = data[p .. p + vlen];
+            p += vlen + 1;
+            const kd = try self.alloc.dupe(u8, key);
+            if (tag == 'S') {
+                const vd = try self.alloc.dupe(u8, val);
+                try kv.keys.append(self.alloc, kd);
+                try kv.vals.append(self.alloc, VVal{ .tag = .Str, .str = vd });
+            } else if (tag == 'I') {
+                const n = std.fmt.parseInt(i64, val, 10) catch fail(ln, "Corrupt store '{s}'", .{kv.path});
+                try kv.keys.append(self.alloc, kd);
+                try kv.vals.append(self.alloc, VVal{ .tag = .Int, .int = n });
+            } else {
+                const x = std.fmt.parseFloat(f64, val) catch fail(ln, "Corrupt store '{s}'", .{kv.path});
+                try kv.keys.append(self.alloc, kd);
+                try kv.vals.append(self.alloc, VVal{ .tag = .Float, .float = x });
+            }
+        }
+    }
+
+    fn kvSave(self: *Vm, kv: *KV, ln: u32) error{OutOfMemory}!void {
+        const fh = std.Io.Dir.cwd().createFile(self.io, kv.path, .{}) catch fail(ln, "Cannot write store '{s}'", .{kv.path});
+        defer fh.close(self.io);
+        var nb: [32]u8 = undefined;
+        for (kv.keys.items, 0..) |k, i| {
+            const v = kv.vals.items[i];
+            const tag: u8 = switch (v.tag) {
+                .Str => 'S',
+                .Int => 'I',
+                .Float => 'F',
+                .Arr => fail(ln, "Cannot store array", .{}),
+            };
+            const vs: []const u8 = switch (v.tag) {
+                .Str => v.str,
+                .Int => intStr(&nb, v.int),
+                .Float => try std.fmt.allocPrint(self.alloc, "{d}", .{v.float}),
+                .Arr => unreachable,
+            };
+            const rec = try std.fmt.allocPrint(self.alloc, "{c}{d}:{s}{d}:{s}\n", .{ tag, k.len, k, vs.len, vs });
+            fh.writeStreamingAll(self.io, rec) catch fail(ln, "Cannot write store '{s}'", .{kv.path});
+        }
+    }
+
     fn run(self: *Vm, entry: usize) error{OutOfMemory}!void {
+        self.t0 = std.Io.Clock.Timestamp.now(self.io, .boot);
         const ech = &self.prog.chunks.items[entry];
         const eslots = try self.alloc.alloc(VVal, @max(ech.nslots, 1));
         for (eslots) |*s| s.* = VVal{};
@@ -1148,6 +1363,19 @@ const Vm = struct {
                         .Arr => self.push(VVal{ .tag = .Int, .int = @intCast(self.arrays.items[v.arr].len) }),
                         else => fail(ln, "len needs a string or array", .{}),
                     }
+                },
+                .clock => {
+                    const now = std.Io.Clock.Timestamp.now(self.io, .boot);
+                    const ns = self.t0.durationTo(now).raw.nanoseconds;
+                    const ms: i64 = @intCast(@divTrunc(ns, std.time.ns_per_ms));
+                    self.push(VVal{ .tag = .Int, .int = ms });
+                },
+                .chr => {
+                    const code = self.popInt();
+                    if (code < 0 or code > 255) fail(ln, "chr code {d} out of range 0-255", .{code});
+                    const s = try self.alloc.alloc(u8, 1);
+                    s[0] = @intCast(code);
+                    self.push(VVal{ .tag = .Str, .str = s });
                 },
                 .charat => {
                     const idx = self.popInt();
@@ -1313,6 +1541,71 @@ const Vm = struct {
                         }
                     }
                 },
+                .kvopen => {
+                    const dst: usize = @intCast(ins.a);
+                    const pv = self.pop();
+                    if (pv.tag != .Str) fail(ln, "kvopen path must be a string", .{});
+                    const path = try self.alloc.dupe(u8, pv.str);
+                    var kv = KV{ .path = path, .keys = .empty, .vals = .empty };
+                    try self.kvLoad(&kv, ln);
+                    const id = self.kvs.items.len;
+                    try self.kvs.append(self.alloc, kv);
+                    f.slots[dst] = VVal{ .tag = .Int, .int = @intCast(id) };
+                },
+                .kvget => {
+                    const dst: usize = @intCast(ins.a);
+                    const dbslot: usize = @intCast(ins.b);
+                    const kv = self.pop();
+                    if (kv.tag != .Str) fail(ln, "kvget key must be a string", .{});
+                    const store = self.kvAt(f.slots[dbslot], ln);
+                    const ix = kvFind(store, kv.str) orelse fail(ln, "Key '{s}' not found", .{kv.str});
+                    f.slots[dst] = store.vals.items[ix];
+                },
+                .kvexists => {
+                    const dst: usize = @intCast(ins.a);
+                    const dbslot: usize = @intCast(ins.b);
+                    const kv = self.pop();
+                    if (kv.tag != .Str) fail(ln, "kvexists key must be a string", .{});
+                    const store = self.kvAt(f.slots[dbslot], ln);
+                    const r: i64 = if (kvFind(store, kv.str) != null) 1 else 0;
+                    f.slots[dst] = VVal{ .tag = .Int, .int = r };
+                },
+                .kvset => {
+                    const dbslot: usize = @intCast(ins.a);
+                    const val = self.pop();
+                    const kv = self.pop();
+                    if (kv.tag != .Str) fail(ln, "kvset key must be a string", .{});
+                    if (val.tag == .Arr) fail(ln, "Cannot store array", .{});
+                    const store = self.kvAt(f.slots[dbslot], ln);
+                    const kd = try self.alloc.dupe(u8, kv.str);
+                    if (kvFind(store, kv.str)) |ix| {
+                        store.vals.items[ix] = val;
+                    } else {
+                        try store.keys.append(self.alloc, kd);
+                        try store.vals.append(self.alloc, val);
+                    }
+                },
+                .kvdel => {
+                    const dbslot: usize = @intCast(ins.a);
+                    const kv = self.pop();
+                    if (kv.tag != .Str) fail(ln, "kvdel key must be a string", .{});
+                    const store = self.kvAt(f.slots[dbslot], ln);
+                    if (kvFind(store, kv.str)) |ix| {
+                        _ = store.keys.orderedRemove(ix);
+                        _ = store.vals.orderedRemove(ix);
+                    }
+                },
+                .kvsave => {
+                    const dbslot: usize = @intCast(ins.a);
+                    try self.kvSave(self.kvAt(f.slots[dbslot], ln), ln);
+                },
+                .kvclose => {
+                    const dbslot: usize = @intCast(ins.a);
+                    const hv = f.slots[dbslot];
+                    if (hv.tag != .Int) fail(ln, "Bad store handle", .{});
+                    const id: usize = @intCast(hv.int);
+                    if (id < self.kvs.items.len) self.kvs.items[id] = null;
+                },
                 .jmp_false => {
                     const c = self.pop();
                     if (!truthy(c)) f.ip = @intCast(ins.a);
@@ -1405,7 +1698,19 @@ pub fn main(init: std.process.Init) !void {
     var path: []const u8 = "";
     for (args[1..]) |a| {
         if (std.mem.eql(u8, a, "--dump")) dump = true else if (std.mem.eql(u8, a, "--version")) {
-            std.Io.File.stdout().writeStreamingAll(init.io, "vectc 0.2.3\n") catch {};
+            std.Io.File.stdout().writeStreamingAll(init.io, "vectc 0.2.4\n") catch {};
+            return;
+        } else if (std.mem.eql(u8, a, "--help") or std.mem.eql(u8, a, "-h")) {
+            std.Io.File.stdout().writeStreamingAll(init.io,
+                \\Usage: vectc [--dump | --version | --help] <file.vt>
+                \\
+                \\  vectc program.vt    compile to bytecode and run on the VM
+                \\  vectc --dump f.vt   print disassembled chunks, don't run
+                \\  vectc --version     print version
+                \\
+                \\Docs: https://vect-7v7s.onrender.com/docs.html
+                \\
+            ) catch {};
             return;
         } else path = a;
     }
@@ -1459,6 +1764,6 @@ pub fn main(init: std.process.Init) !void {
     }
 
     const top = prog.func_index.get("__top") orelse fail(1, "No code", .{});
-    var vm = Vm{ .alloc = alloc, .io = init.io, .prog = &prog, .arrays = .empty, .files = .empty };
+    var vm = Vm{ .alloc = alloc, .io = init.io, .prog = &prog, .arrays = .empty, .files = .empty, .kvs = .empty };
     try vm.run(top);
 }

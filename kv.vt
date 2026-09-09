@@ -1,0 +1,25 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    kvopen db, "kv_test.kv"
+    kvset db, "name", "vect"
+    kvset db, "score", 99
+    kvset db, "pi", 3.14
+    kvsave db
+    kvclose db
+    kvopen db2, "kv_test.kv"
+    (n.kvget db2, "name")
+    echo n
+    (s.kvget db2, "score")
+    echo s
+    (p.kvget db2, "pi")
+    echo p
+    (ok.kvexists db2, "missing")
+    echo ok
+    kvdel db2, "score"
+    (ok2.kvexists db2, "score")
+    echo ok2
+    kvclose db2
+main()

@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Release archive — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <h1 style="margin-top:36px">Release archive</h1>
+  <p style="color:var(--mut)">Old versions, kept for archival purposes. Scoop always serves the latest release — these zips are the only way to get earlier ones.</p>
+
+  <h2 class="sec">0.2.1 — first public release</h2>
+  <p>The foundation everything since is built on: the bytecode compiler + stack VM replacing the original tree-walk interpreter, real stdout, file primitives (<code>fopen/fread/fwrite/fclose</code>), real <code>.vth</code> includes, <code>if</code>/<code>els</code> branches, and the first Scoop + website distribution. If 0.2.3 ever misbehaves, this is the fallback that proves the lineage.</p>
+  <p><a class="btn pri" href="/dl/vectc-v0.2.1-windows-x64.zip">vectc v0.2.1 — .zip</a></p>
+  <div class="term"><span class="c"># verify the download (PowerShell)</span><br><span class="p">></span> Get-FileHash vectc-v0.2.1-windows-x64.zip -Algorithm SHA256<br><span class="c"># expect: 2DFF75A620CCE8B5C2A1D9EF482D0F3D3D902061583E0196E2DEB2F88C722B3D</span></div>
+  <div class="note"><b>Unsupported.</b> 0.2.1 gets no fixes and no VirusTotal report — for the verified current release, use the <a href="download.html">download page</a>.</div>
+
+  <h2 class="sec">Pre-0.2.1</h2>
+  <p>Internal development builds, including the tree-walk interpreter era. Not published, not supported — archaeology, not software.</p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

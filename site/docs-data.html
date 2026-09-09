@@ -13,7 +13,7 @@
   <a class="nl" href="examples.html">Examples</a>
   <a class="nl on" href="docs.html">Docs</a>
   <a class="nl" href="download.html">Download</a>
-  <span class="sp"></span><span class="badge">v0.2.3 · .vt</span>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
 </div></header>
 
 <main class="wrap">
@@ -55,10 +55,24 @@ fclose fr
 echo s</code></pre>
   <p>Paths resolve relative to the folder you run <code>vectc</code> from. Using a closed or bad handle halts with a line number.</p>
 
+  <h2 class="sec">Key-value stores</h2>
+  <p>A tiny embedded NoSQL store: typed values (string/int/float) persisted to a length-prefixed text file.</p>
+<pre><code>kvopen db, "saves.kv"   cmt missing file starts empty, created on save
+kvset db, "name", "vect"
+kvset db, "score", 99
+kvsave db
+kvclose db
+kvopen db2, "saves.kv"
+(n.kvget db2, "name")
+(ok.kvexists db2, "missing")  cmt 0 when absent
+kvdel db2, "score"            cmt in-memory delete
+kvclose db2</code></pre>
+  <p>Reading a missing key halts — check with <code>kvexists</code> first. Arrays cannot be stored.</p>
+
   <p style="color:var(--mut)">Next: <a href="docs-system.html">4 · System →</a></p>
 </main>
 
-<footer><div class="wrap"><span>Vect language · v0.2.3</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a></div></footer>
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
 <script src="site.js"></script>
 </body>
 </html>

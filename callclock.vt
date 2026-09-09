@@ -1,0 +1,13 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn getnum
+    v42
+    rtn v
+vectfn main
+    (r.getnum)
+    echo r
+    (t.clock)
+    echo t
+main()

@@ -13,7 +13,7 @@
   <a class="nl on" href="examples.html">Examples</a>
   <a class="nl" href="docs.html">Docs</a>
   <a class="nl" href="download.html">Download</a>
-  <span class="sp"></span><span class="badge">v0.2.3 · .vt</span>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
 </div></header>
 
 <main class="wrap">
@@ -139,9 +139,22 @@ main()</code></pre>
     if msg == msg
         echo "same"
 main()</code></pre>
+
+  <div class="codehead"><b>10 · Key-value store</b><button data-copy="e10">copy</button></div>
+<pre><code id="e10">vectfn main
+    kvopen db, "saves.kv"
+    kvset db, "name", "vect"
+    kvset db, "score", 99
+    kvsave db
+    kvclose db
+    kvopen db2, "saves.kv"
+    (n.kvget db2, "name")
+    echo n
+    kvclose db2
+main()</code></pre>
 </main>
 
-<footer><div class="wrap"><span>Vect language · v0.2.3</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a></div></footer>
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
 <script src="site.js"></script>
 </body>
 </html>

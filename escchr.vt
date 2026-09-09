@@ -1,0 +1,12 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    echo "a\nb"
+    (s.chr 65)
+    echo s
+    (t.chr 66)
+    (u.cat s, t)
+    echo u
+main()
