@@ -57,6 +57,20 @@ vectfn main
 main()</code></pre>
 
   <p style="color:var(--mut)">Next: <a href="examples.html">more examples →</a> · <a href="docs.html">full reference →</a></p>
+
+  <h2 class="sec">How it works</h2>
+  <div class="grid">
+    <div class="card"><h3>1 · Write .vt</h3><p>Compact source: header, functions, one statement per line. Any editor (ours for VS Code helps).</p></div>
+    <div class="card"><h3>2 · vectc compiles</h3><p>Lexer → parser → 50-op bytecode, one chunk per function. <code>--dump</code> shows every instruction.</p></div>
+    <div class="card"><h3>3 · VM runs</h3><p>Stack machine: slots for variables, frames for calls, arena for data. Errors halt with file + line.</p></div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h3>~50</h3><p>bytecode ops and counting</p></div>
+    <div class="card"><h3>20</h3><p>runnable example programs</p></div>
+    <div class="card"><h3>23</h3><p>docs pages, all beginner-tested</p></div>
+    <div class="card"><h3>0</h3><p>dependencies to install Vect</p></div>
+  </div>
 </main>
 
 <footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>

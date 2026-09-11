@@ -18,7 +18,7 @@
 
 <main class="wrap">
   <h1 style="margin-top:36px">Examples</h1>
-  <p style="color:var(--mut)">Every snippet below is real Vect that runs on <code>vectc</code>. Run with <code>vectc file.vt</code>.</p>
+  <p style="color:var(--mut)">Every snippet below is real Vect that runs on <code>vectc</code>. Run with <code>vectc file.vt</code>. Programs needing input (marked) take typed lines on stdin — pipe them or type interactively.</p>
 
   <div class="codehead"><b>1 · Variables &amp; math</b><button data-copy="e1">copy</button></div>
 <pre><code id="e1">vectfn main
@@ -351,6 +351,19 @@ main()</code></pre>
         if left &lt;= 0
             done1
     echo "done"
+main()</code></pre>
+
+  <div class="codehead"><b>21 · Recursion (factorial)</b><button data-copy="e21">copy</button></div>
+<pre><code id="e21">vectfn fact.n
+    if n == 0
+        rtn 1
+    (m.n-1)
+    (r.fact m)
+    (p.r*n)
+    rtn p
+vectfn main
+    (f.fact 5)
+    echo f          cmt 120
 main()</code></pre>
 </main>
 

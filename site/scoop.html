@@ -29,8 +29,7 @@
   <div class="term"><span class="p">></span> vectc hello.vt</div>
   <p>Update later with <code>scoop update vectc</code>.</p>
 
-  <h2 class="sec">For maintainers (publishing a release)</h2>
-  <p>The bucket is just a repo holding one JSON file per app. To publish Vect vX.Y.Z:</p>
+  <h2 class="sec">For maintainers (publishing a release)</h2>  <p>The bucket is just a repo holding one JSON file per app. To publish Vect vX.Y.Z:</p>
   <ol>
     <li>Build <code>vectc.exe</code> with <code>-O ReleaseFast</code>, zip it as <code>vectc-vX.Y.Z-windows-x64.zip</code>, upload to <code>site/dl/</code> ( published as <code>https://vect-7v7s.onrender.com/dl/…</code> ).</li>
     <li>Hash it: <code>Get-FileHash vectc-vX.Y.Z-windows-x64.zip -Algorithm SHA256</code>.</li>

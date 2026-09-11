@@ -73,3 +73,20 @@ th { color: var(--mut); font-weight: 600; }
 
 footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 22px 0 40px; color: var(--mut); font-size: 14px; }
 footer .wrap { display: flex; gap: 18px; flex-wrap: wrap; }
+
+/* docs sidebar (injected by site.js on docs pages) */
+.side-toggle { display: none; position: fixed; left: 12px; bottom: 14px; z-index: 30; background: var(--card); color: var(--txt); border: 1px solid var(--acc); border-radius: 10px; padding: 9px 14px; font-weight: 700; cursor: pointer; }
+aside.side { position: fixed; top: 0; left: 0; bottom: 0; width: 240px; background: #0d1119; border-right: 1px solid var(--line); padding: 76px 18px 24px; overflow-y: auto; z-index: 5; font-size: 14px; }
+aside.side h4 { margin: 16px 0 6px; color: var(--mut); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+aside.side h4:first-child { margin-top: 0; }
+aside.side a { display: block; padding: 4px 10px; border-radius: 8px; color: var(--mut); }
+aside.side a:hover { color: var(--txt); text-decoration: none; background: var(--bg2); }
+aside.side a.on { color: var(--acc); background: #14202b; font-weight: 700; }
+body.has-side main.wrap, body.has-side footer .wrap { margin-left: 260px; max-width: calc(var(--max) + 260px); }
+body.has-side .nav .wrap { margin-left: 260px; max-width: calc(var(--max) + 260px); }
+@media (max-width: 900px) {
+  body.has-side main.wrap, body.has-side footer .wrap, body.has-side .nav .wrap { margin-left: auto; }
+  aside.side { display: none; width: 260px; }
+  body.side-open aside.side { display: block; }
+  .side-toggle { display: block; }
+}

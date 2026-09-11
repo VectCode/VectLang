@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Style guide — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>Style guide</h1>
+  <p style="color:var(--mut)">How to write Vect that other humans enjoy reading. The compiler accepts more than this guide allows — these are conventions, not rules.</p>
+
+  <h2 class="sec">Names</h2>
+  <ul>
+    <li>Variables read best as words: <code>score</code>, <code>paddleY</code>, not <code>s</code>, <code>py</code> — compactness comes from the syntax, not from shortening names.</li>
+    <li>Remember trailing digits assign: a variable literally named <code>var2</code> cannot be written plainly. Prefer letter names, or compute suffixes explicitly.</li>
+    <li>Functions are verbs: <code>add</code>, <code>drawline</code>. Never put a dot in a function name — dots separate the name from its parameters.</li>
+  </ul>
+
+  <h2 class="sec">Math</h2>
+  <ul>
+    <li>One operation per target expression. <code>(d.u-pick)</code> then <code>(d.d+3)</code> beats clever nesting nobody can debug.</li>
+    <li>Spaces inside <code>(target. expression)</code> are free — use them: <code>(ballX.ballX + ballDX)</code>.</li>
+    <li>Name intermediate results (<code>distX</code>, <code>paddleBottom</code>) instead of re-deriving them.</li>
+  </ul>
+
+  <h2 class="sec">Control flow</h2>
+  <ul>
+    <li>Prefer early patterns over deep nesting: three levels max. Extract a <code>vectfn</code> instead of a fourth <code>if</code>.</li>
+    <li><code>loN</code> for fixed work, <code>loNw cond</code> with a real condition — never <code>lo1000w true</code> without an exit flag inside.</li>
+    <li>Always pair <code>if</code> with <code>els</code> when the false path matters; silent no-ops hide bugs.</li>
+  </ul>
+
+  <h2 class="sec">Defensive habits</h2>
+  <ul>
+    <li>Check <code>kvexists</code> before <code>kvget</code>; check <code>ok</code> flags after input.</li>
+    <li>Initialize every counter (<code>i0</code>) right before its loop — never reuse loop variables across loops.</li>
+    <li>One <code>cmt</code> per non-obvious block. If it took you a minute, it takes a reader ten.</li>
+  </ul>
+
+  <h2 class="sec">Files</h2>
+  <ul>
+    <li>Header block first, always in the same order: <code>vt.init</code>, headers, <code>(main)</code>, <code>branch</code>.</li>
+    <li>Shared code goes in <code>.vth</code> after its second use, not its first.</li>
+    <li><code>kvsave</code> before <code>kvclose</code> — closing discards unsaved changes by design.</li>
+  </ul>
+
+  <h2 class="sec">Anti-patterns (seen in the wild)</h2>
+  <table>
+    <tr><th>Don't</th><th>Why / do instead</th></tr>
+    <tr><td>Single-letter everything (<code>a b c x y</code>)</td><td>Compactness is the syntax's job. Name the idea: <code>score lives turns</code>.</td></tr>
+    <tr><td>Reusing one counter for two loops</td><td>Stale values leak across loops. Fresh <code>i0</code>/<code>j0</code> per loop, always.</td></tr>
+    <tr><td><code>(x.get arr, i)</code> twice for the same cell</td><td>Read once into a named temp; the second read is a second bounds check and a second chance to typo the index.</td></tr>
+    <tr><td>Giant <code>main</code></td><td>Over ~40 lines, extract a <code>vectfn</code>. Test it alone with <code>echo</code> probes first.</td></tr>
+    <tr><td>Magic numbers (<code>lo100</code>, <code>if x == 119</code>)</td><td>Name them: <code>maxretries100</code>, <code>keyW119</code> with a <code>cmt</code> saying what 119 is.</td></tr>
+    <tr><td><code>lo1000w true</code> with no exit</td><td>Every infinite loop needs a <code>done</code> flag set on all exit paths, or Ctrl+C is the UI.</td></tr>
+  </table>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

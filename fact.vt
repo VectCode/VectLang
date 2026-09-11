@@ -1,0 +1,15 @@
+vt.init
+mvga.vth
+(main)
+branch
+vectfn fact.n
+    if n == 0
+        rtn 1
+    (m.n-1)
+    (r.fact m)
+    (p.r*n)
+    rtn p
+vectfn main
+    (f.fact 5)
+    echo f
+main()

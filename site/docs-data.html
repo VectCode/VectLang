@@ -55,6 +55,11 @@ fclose fr
 echo s</code></pre>
   <p>Paths resolve relative to the folder you run <code>vectc</code> from. Using a closed or bad handle halts with a line number.</p>
 
+  <h2 class="sec">File patterns</h2>
+  <p><b>Read a whole small file:</b> open <code>"r"</code>, one big <code>fread</code> (up to 1,000,000 bytes), close. Short reads only happen at EOF.</p>
+  <p><b>Copy a file:</b> loop <code>fread</code> chunks and <code>fwrite</code> them until the chunk comes back <code>""</code>. Compare lengths with <code>len</code> to detect the end.</p>
+  <p><b>Append:</b> there is no append mode — read the file, <code>cat</code> the new text, write it back. For records that grow, prefer the KV store below.</p>
+
   <h2 class="sec">Key-value stores</h2>
   <p>A tiny embedded NoSQL store: typed values (string/int/float) persisted to a length-prefixed text file.</p>
 <pre><code>kvopen db, "saves.kv"   cmt missing file starts empty, created on save

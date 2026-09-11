@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLI reference — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>CLI reference (<code>vect</code> / <code>vectc</code>)</h1>
+  <p style="color:var(--mut)">Both names run the same program (Scoop installs the <code>vect</code> alias).</p>
+
+  <h2 class="sec">Commands</h2>
+  <table>
+    <tr><th>Command</th><th>Does</th></tr>
+    <tr><td><code>vect program.vt</code></td><td>Compile to bytecode and run on the VM</td></tr>
+    <tr><td><code>vect --dump program.vt</code></td><td>Print disassembled chunks + const pool, don't run (see <a href="isa.html">ISA</a>)</td></tr>
+    <tr><td><code>vect --version</code></td><td>Print version, e.g. <code>vectc 0.2.4</code></td></tr>
+    <tr><td><code>vect --help</code></td><td>Usage, modes, docs URL</td></tr>
+  </table>
+
+  <h2 class="sec">Exit codes</h2>
+  <table>
+    <tr><th>Code</th><th>Meaning</th></tr>
+    <tr><td><code>0</code></td><td>Success (including <code>--dump</code>/<code>--version</code>)</td></tr>
+    <tr><td><code>1</code></td><td>Runtime or compile error — details on stderr (see <a href="errors.html">error catalog</a>)</td></tr>
+    <tr><td><code>2</code></td><td>Usage error (no file given)</td></tr>
+  </table>
+
+  <h2 class="sec">Piping</h2>
+<pre><code>echo 42 | vect program.vt      cmt feed stdin
+vect program.vt > out.txt      cmt program output (stdout); errors still show (stderr)</code></pre>
+  <p>Paths (source file, <code>fopen</code> paths, <code>.vth</code> includes) resolve relative to the working directory, except <code>.vth</code> which resolves relative to the file naming it.</p>
+
+  <h2 class="sec">Scripting with vect</h2>
+  <p>Batch files that run many programs and stop on failure:</p>
+<pre><code>$files = @("a.vt", "b.vt", "c.vt")
+foreach ($f in $files) {
+    vect $f
+    if ($LASTEXITCODE -ne 0) { echo "FAILED: $f"; break }
+}</code></pre>
+  <p>Because errors go to stderr and output to stdout, <code>vect prog.vt > out.txt</code> captures clean program output while failures still scream on screen. Check <code>$LASTEXITCODE</code> (0 ok, 1 error, 2 usage) after every run that matters.</p>
+
+  <h2 class="sec">Reading a dump</h2>
+  <p><code>--dump</code> prints one chunk per function plus the const pool. Each line is <code>address op a b ; source line</code>. Follow a call: <code>call N</code> jumps to chunk N, <code>ret</code> pushes the value back, the caller <code>store</code>s it. Full op list: <a href="isa.html">ISA reference</a>.</p>
+
+  <h2 class="sec">Exit codes in scripts</h2>
+  <table>
+    <tr><th>Pattern</th><th>Snippet</th></tr>
+    <tr><td>Fail fast</td><td><code>vect build.vt; if ($LASTEXITCODE -ne 0) { exit 1 }</code></td></tr>
+    <tr><td>Expect failure (negative test)</td><td><code>vect bad.vt; if ($LASTEXITCODE -eq 0) { echo "should have failed!" }</code></td></tr>
+    <tr><td>Separate streams</td><td><code>vect p.vt > out.txt 2> err.txt</code></td></tr>
+  </table>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bytecode ISA — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>Bytecode ISA</h1>
+  <p style="color:var(--mut)">What <code>vectc --dump</code> prints. Stack machine: operands in brackets are popped, results pushed. Slots are per-function variable cells.</p>
+
+  <h2 class="sec">Constants &amp; variables</h2>
+  <table>
+    <tr><th>Op</th><th>Operands</th><th>Effect</th></tr>
+    <tr><td><code>push_int</code></td><td>v</td><td>push integer v</td></tr>
+    <tr><td><code>push_float</code></td><td>bits</td><td>push f64</td></tr>
+    <tr><td><code>push_str</code></td><td>const idx</td><td>push string constant</td></tr>
+    <tr><td><code>load</code></td><td>slot</td><td>push slots[slot]</td></tr>
+    <tr><td><code>store</code></td><td>slot</td><td>slots[slot] = pop()</td></tr>
+    <tr><td><code>pop</code></td><td>—</td><td>discard top</td></tr>
+  </table>
+
+  <h2 class="sec">Arithmetic (int, or float if either side floats)</h2>
+  <table>
+    <tr><th>Op</th><th>Effect</th></tr>
+    <tr><td><code>add sub mul</code></td><td>push(a ∘ b)</td></tr>
+    <tr><td><code>div</code></td><td>truncating int div, float div otherwise; zero divisor halts</td></tr>
+    <tr><td><code>mod</code></td><td>remainder; zero divisor halts</td></tr>
+    <tr><td><code>sqrt</code></td><td>int sqrt (≤0 → 0), float sqrt (negative halts)</td></tr>
+    <tr><td><code>and_ or_ xor_ shl shr bitnot</code></td><td>bitwise ops on ints</td></tr>
+  </table>
+
+  <h2 class="sec">Comparison (push 1/0; strings compare lexicographically)</h2>
+  <table>
+    <tr><th>Op</th><th>Effect</th></tr>
+    <tr><td><code>eq ne lt le gt ge</code></td><td>push(a ∘ b ? 1 : 0)</td></tr>
+  </table>
+
+  <h2 class="sec">Strings &amp; arrays</h2>
+  <table>
+    <tr><th>Op</th><th>Effect</th></tr>
+    <tr><td><code>len</code></td><td>string bytes / array length → int</td></tr>
+    <tr><td><code>charat</code></td><td>pop idx, string → char code (bounds-checked)</td></tr>
+    <tr><td><code>cmpstr</code></td><td>pop b, a → -1/0/1</td></tr>
+    <tr><td><code>cat</code></td><td>pop b, a → concatenated string (numbers convert)</td></tr>
+    <tr><td><code>newarr</code></td><td>slot; pops size → zeroed array</td></tr>
+    <tr><td><code>arrget</code></td><td>dst, arr; pops idx → int (bounds-checked)</td></tr>
+    <tr><td><code>arrset</code></td><td>arr; pops idx, val (bounds-checked)</td></tr>
+  </table>
+
+  <h2 class="sec">I/O, files, stores</h2>
+  <table>
+    <tr><th>Op</th><th>Effect</th></tr>
+    <tr><td><code>echo</code></td><td>print pop() + newline (stdout)</td></tr>
+    <tr><td><code>echow</code></td><td>pop ms, value → live overlay print</td></tr>
+    <tr><td><code>input</code></td><td>slot; read stdin line (numbers become int)</td></tr>
+    <tr><td><code>vga</code></td><td>pop mode string (hosted: banner)</td></tr>
+    <tr><td><code>pout</code></td><td>pop port, value (hosted: noop)</td></tr>
+    <tr><td><code>fopen</code></td><td>slot; pops mode, path → handle id</td></tr>
+    <tr><td><code>fread</code></td><td>dst, fh; pops n → string (short at EOF)</td></tr>
+    <tr><td><code>fwrite</code></td><td>fh; pops value → raw bytes/decimal</td></tr>
+    <tr><td><code>fclose</code></td><td>fh; close (idempotent)</td></tr>
+    <tr><td><code>kvopen</code></td><td>slot; pops path → store id (missing starts empty)</td></tr>
+    <tr><td><code>kvget</code></td><td>dst, db; pops key (missing halts)</td></tr>
+    <tr><td><code>kvexists</code></td><td>dst, db; pops key → 1/0</td></tr>
+    <tr><td><code>kvset</code></td><td>db; pops key, value</td></tr>
+    <tr><td><code>kvdel</code></td><td>db; pops key (missing: noop)</td></tr>
+    <tr><td><code>kvsave</code></td><td>db; persist store file</td></tr>
+    <tr><td><code>kvclose</code></td><td>db; forget handle (unsaved changes lost)</td></tr>
+    <tr><td><code>clock</code></td><td>push ms since VM start</td></tr>
+    <tr><td><code>chr</code></td><td>pop code → 1-char string (0–255)</td></tr>
+  </table>
+
+  <h2 class="sec">Control flow</h2>
+  <table>
+    <tr><th>Op</th><th>Effect</th></tr>
+    <tr><td><code>jmp</code></td><td>ip = target</td></tr>
+    <tr><td><code>jmp_false</code></td><td>pop cond; if falsy, ip = target</td></tr>
+    <tr><td><code>call</code></td><td>func idx; pops arity args → new frame; <code>ret</code> pushes the value back</td></tr>
+    <tr><td><code>ret</code></td><td>pop return value; empty frame stack halts</td></tr>
+    <tr><td><code>halt</code></td><td>stop, exit 0</td></tr>
+  </table>
+
+  <h2 class="sec">Reading a dump</h2>
+<pre><code>== add (chunk 0, arity 2, slots 3) ==
+0000  load 0 0   ; line 7
+0001  load 1 0   ; line 7
+0002  add 0 0   ; line 7
+0003  store 2 0   ; line 7</code></pre>
+  <p>Each function compiles to a chunk: fixed slots (params first), operand stack per frame, every instruction tagged with its source line for error reports. Frames nest 64 deep; stacks hold 512 values.</p>
+
+  <h2 class="sec">Calling convention</h2>
+  <ol>
+    <li>Caller pushes arguments left to right.</li>
+    <li><code>call N</code> pops exactly <code>arity</code> values into slots <code>0..arity-1</code> of a fresh frame (own slots, own stack).</li>
+    <li>Callee runs; <code>ret</code> pops one value, drops the frame, pushes the value onto the caller's stack.</li>
+    <li>Statement calls (<code>main()</code>) follow <code>call</code> with <code>pop</code>; value calls (<code>(r.add 25, 75)</code>) follow it with <code>store</code>.</li>
+  </ol>
+  <p>There are no globals across frames by design — shared state travels through arguments, arrays (heap-indexed, so indices copy cheaply), files, or stores.</p>
+
+  <h2 class="sec">How errors map to bytecode</h2>
+  <p>Every instruction carries its source line, so a fault deep in a loop still reports the exact line (and header file). Compile-time faults (unknown names, bad arity, bad blocks) fire during emission with the definition's line; runtime faults (div-zero, OOB, bad handles) fire mid-execution with the faulting instruction's line. Same format, same exit code — see the <a href="errors.html">catalog</a>.</p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

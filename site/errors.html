@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error catalog — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>Error catalog</h1>
+  <p style="color:var(--mut)">Every fault prints <code>[Vect Runtime Error]: … at line N</code> to stderr and exits 1. Compile-time faults fire before anything runs; runtime faults halt mid-program. Faults inside <code>.vth</code> files add the filename.</p>
+
+  <h2 class="sec">Reading an error</h2>
+<pre><code>[Vect Runtime Error]: Index 5 out of bounds (len 3) at line 14 (game.vt)
+[Vect Execution Terminated]</code></pre>
+  <p>Three parts: <b>what</b> (with the offending values filled in), <b>where</b> (line, plus file when inside a header), and the termination banner. Exit code is always 1 for these (2 means you gave <code>vectc</code> no file at all). Program output before the fault stays on stdout; the error itself is on stderr, so <code>vect p.vt > out.txt</code> keeps them separated.</p>
+
+  <h2 class="sec">Math</h2>
+  <table>
+    <tr><th>Message</th><th>Cause / fix</th></tr>
+    <tr><td><code>Division by zero</code></td><td>Divisor is 0. Guard with <code>if b == 0</code> first.</td></tr>
+    <tr><td><code>Modulo by zero</code></td><td>Same for <code>%</code>.</td></tr>
+    <tr><td><code>Square root of negative</code></td><td>Float <code>sqrt</code> of a negative. Check sign first (int version returns 0).</td></tr>
+    <tr><td><code>Not a number</code></td><td>String used in math that isn't numeric (e.g. empty <code>in()</code> result used raw — normalize with <code>cat</code>).</td></tr>
+    <tr><td><code>Number too large</code></td><td>Float outside i64 range forced into int context.</td></tr>
+  </table>
+
+  <h2 class="sec">Variables &amp; values</h2>
+  <table>
+    <tr><th>Message</th><th>Cause / fix</th></tr>
+    <tr><td><code>Undefined variable 'x'</code></td><td>Read before any assignment. Assign (<code>x0</code>) before use.</td></tr>
+    <tr><td><code>Unknown function 'f'</code></td><td>Typo, or <code>.vth</code> header missing from the file header.</td></tr>
+    <tr><td><code>Function expects N args, got M</code></td><td>Arity mismatch at the call site.</td></tr>
+    <tr><td><code>Cannot compare these values</code></td><td>String vs number (or array) in a comparison. Convert first.</td></tr>
+    <tr><td><code>Array is not a number</code></td><td>Array used in arithmetic — index into it with <code>get</code> first.</td></tr>
+    <tr><td><code>Cannot stringify array</code></td><td><code>cat</code>/concat with an array operand.</td></tr>
+    <tr><td><code>Cannot store array</code></td><td>KV stores hold strings/ints/floats only.</td></tr>
+    <tr><td><code>len needs a string or array</code></td><td><code>len</code> applied to a number.</td></tr>
+    <tr><td><code>char needs a string</code></td><td>First <code>char</code> operand isn't a string.</td></tr>
+    <tr><td><code>cmp needs two strings</code></td><td><code>cmp</code> is strings-only; numbers use <code>==</code>.</td></tr>
+    <tr><td><code>chr code N out of range 0-255</code></td><td><code>chr</code> takes byte codes only.</td></tr>
+  </table>
+
+  <h2 class="sec">Arrays &amp; stores</h2>
+  <table>
+    <tr><th>Message</th><th>Cause / fix</th></tr>
+    <tr><td><code>Index N out of bounds (len M)</code></td><td><code>get</code>/<code>set</code>/<code>char</code> past the end. Sizes are fixed at allocation.</td></tr>
+    <tr><td><code>Bad array size N</code></td><td>Size ≤ 0 or absurdly large.</td></tr>
+    <tr><td><code>Key 'k' not found</code></td><td><code>kvget</code> on a missing key — check <code>kvexists</code> first.</td></tr>
+    <tr><td><code>Bad file/store handle</code></td><td>Using a closed or never-opened handle; <code>open</code> before use.</td></tr>
+    <tr><td><code>Corrupt store 'f'</code></td><td>KV file edited by hand into an invalid shape. Delete it to start fresh.</td></tr>
+    <tr><td><code>fopen path/mode must be…</code></td><td>Path/mode must be strings; mode is <code>"r"</code> or <code>"w"</code>.</td></tr>
+  </table>
+
+  <h2 class="sec">Program structure</h2>
+  <table>
+    <tr><th>Message</th><th>Cause / fix</th></tr>
+    <tr><td><code>Unknown statement '…'</code></td><td>Line matches no grammar rule — usually a typo'd keyword or bad indentation level.</td></tr>
+    <tr><td><code>Bad indentation</code> / <code>Unexpected indented block</code></td><td>Block deeper than one level past its parent, or indented lines after a non-block statement. Use 4 spaces per level.</td></tr>
+    <tr><td><code>els without if</code></td><td>Stray <code>els</code> at a level with no matching <code>if</code> above it.</td></tr>
+    <tr><td><code>Only vectfn definitions allowed in header</code></td><td>Executable code at level 0 of a <code>.vth</code> file.</td></tr>
+    <tr><td><code>Cannot open header '…'</code></td><td>Missing <code>.vth</code> — paths resolve relative to the file naming them.</td></tr>
+    <tr><td><code>Stack overflow/underflow</code>, <code>Call stack overflow</code></td><td>Runaway recursion or expression depth. Frames cap at 64, stacks at 512.</td></tr>
+  </table>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

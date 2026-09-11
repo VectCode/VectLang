@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installation — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>Installation</h1>
+
+  <h2 class="sec">Requirements</h2>
+  <p>Windows 10/11 x64. No dependencies, no admin rights, no installer — one <code>vectc.exe</code>, ~1&nbsp;MB.</p>
+
+  <h2 class="sec">Option A · Scoop (recommended)</h2>
+  <div class="term"><span class="p">></span> scoop bucket add vect https://github.com/MerixCipher/scoop-bucket<br><span class="p">></span> scoop install vect/vectc</div>
+  <p>This puts both <code>vect</code> and <code>vectc</code> on your PATH. Update anytime with <code>scoop update vectc</code>, remove with <code>scoop uninstall vectc</code>. Full guide: <a href="scoop.html">Scoop page</a>.</p>
+
+  <h2 class="sec">Option B · Zip</h2>
+  <ol>
+    <li>Download from the <a href="download.html">download page</a>.</li>
+    <li>Unzip anywhere, e.g. <code>C:\tools\vect</code>.</li>
+    <li>Optional: add that folder to PATH (Settings → System → About → Advanced → Environment Variables).</li>
+  </ol>
+
+  <h2 class="sec">Verify</h2>
+  <div class="term"><span class="p">></span> vect --version<br>vectc 0.2.4<br><span class="p">></span> Get-FileHash vectc-v0.2.4-windows-x64.zip -Algorithm SHA256</div>
+  <p>Compare the hash with the one in the <a href="scoop.html">Scoop manifest</a>, and check the <a href="download.html">VirusTotal report</a> for the release.</p>
+
+  <h2 class="sec">Troubleshooting</h2>
+  <table>
+    <tr><th>Symptom</th><th>Fix</th></tr>
+    <tr><td><code>vect</code> not recognized</td><td>Close and reopen the terminal (PATH refreshes on new shells)</td></tr>
+    <tr><td>SmartScreen warning</td><td>Expected: the binary is unsigned. Click More info → Run anyway, after verifying the hash</td></tr>
+    <tr><td><code>Cannot open header 'mvga.vth'</code></td><td>Run from the folder containing your <code>.vt</code> and its <code>.vth</code> files</td></tr>
+  </table>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

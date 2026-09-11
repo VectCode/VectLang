@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutorial: guess the word — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>Tutorial: guess the word</h1>
+  <p style="color:var(--mut)">We build Hangman in ~50 lines, one idea at a time. Run each step with <code>vect guess.vt</code>.</p>
+
+  <h2 class="sec">Step 1 · State</h2>
+  <p>Secret word, revealed flags, lives, progress. Arrays hold per-letter state:</p>
+<pre><code>msg"vect"
+(n.len msg)
+rev(4)
+lives6
+shown0
+done0</code></pre>
+
+  <h2 class="sec">Step 2 · Draw the board</h2>
+  <p>Rebuild the display string every turn — revealed letters or underscores:</p>
+<pre><code>disp""
+i0
+lo4
+    (flag.get rev, i)
+    (code.char msg, i)
+    if flag == 1
+        (ch.chr code)
+        (disp.cat disp, ch)
+    els
+        (disp.cat disp, "_")
+    (i.i+1)
+echo disp</code></pre>
+
+  <h2 class="sec">Step 3 · Guess</h2>
+  <p>Read a letter, normalize it (empty input becomes <code>"0"</code> instead of crashing), scan for hits:</p>
+<pre><code>in(guess)
+(clean.cat guess, "")
+(gcode.char clean, 0)
+found0
+j0
+lo4
+    (code2.char msg, j)
+    if code2 == gcode
+        (old.get rev, j)
+        if old == 0
+            set rev, j, 1
+            (shown.shown+1)
+        found1
+    (j.j+1)
+if found == 0
+    (lives.lives-1)</code></pre>
+
+  <h2 class="sec">Step 4 · End conditions</h2>
+  <p>Wrap steps 2–3 in <code>lo100w done == 0</code> and stop on win or loss:</p>
+<pre><code>if shown == n
+    echo "win"
+    done1
+if lives == 0
+    echo "lose, word was:"
+    echo msg
+    done1</code></pre>
+
+  <h2 class="sec">Exercises</h2>
+  <ul>
+    <li>Change the word (adjust the two <code>lo4</code>s to match its length).</li>
+    <li>Track wrong letters in a second array and display them.</li>
+    <li>Persist best score with <code>kvset</code>/<code>kvsave</code>.</li>
+  </ul>
+
+  <h2 class="sec">Step 5 · Debugging it when it breaks</h2>
+  <p>You will meet these three faults while building — here's what each means:</p>
+  <table>
+    <tr><th>Error</th><th>Usual cause</th></tr>
+    <tr><td><code>Undefined variable 'x'</code></td><td>Reading a name you never assigned. Check for <code>(x…)</code> (read) vs <code>x…</code> (write) confusion.</td></tr>
+    <tr><td><code>Index out of bounds</code></td><td>Loop counter ran past the word: your <code>lo4</code> doesn't match the word length.</td></tr>
+    <tr><td><code>char needs a string</code></td><td>Empty <code>in()</code> gives int <code>0</code>. Normalize with <code>(clean.cat guess, "")</code> first.</td></tr>
+  </table>
+
+  <h2 class="sec">Step 6 · The full file</h2>
+  <p>Assembled, this is <code>guess.vt</code> from the repo — compare yours line by line:</p>
+<pre><code>vt.init
+mvga.vth
+(main)
+branch
+vectfn main
+    msg"vect"
+    (n.len msg)
+    rev(4)
+    lives6
+    shown0
+    done0
+    lo100w done == 0
+        disp""
+        i0
+        lo4
+            (flag.get rev, i)
+            (code.char msg, i)
+            if flag == 1
+                (ch.chr code)
+                (disp.cat disp, ch)
+            els
+                (disp.cat disp, "_")
+            (i.i+1)
+        echo disp
+        in(guess)
+        (clean.cat guess, "")
+        (gcode.char clean, 0)
+        found0
+        j0
+        lo4
+            (code2.char msg, j)
+            if code2 == gcode
+                (old.get rev, j)
+                if old == 0
+                    set rev, j, 1
+                    (shown.shown+1)
+                found1
+            (j.j+1)
+        if found == 0
+            (lives.lives-1)
+        if shown == n
+            echo "win"
+            done1
+        if lives == 0
+            echo "lose"
+            done1
+main()</code></pre>
+
+  <h2 class="sec">Where this took you</h2>
+  <p>You now own: compact assignment, target math, both loop forms, <code>if</code>/<code>els</code>, arrays, string ops (<code>len/char/chr/cat</code>), input normalization, and state flags. That's ~80% of everyday Vect — the rest is files, stores, and headers in chapter 3 of the <a href="docs-data.html">reference</a>.</p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

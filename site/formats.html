@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File formats — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>File formats</h1>
+
+  <h2 class="sec">.vt source files</h2>
+  <ul>
+    <li>UTF-8 text, LF or CRLF line endings (both accepted).</li>
+    <li>4 spaces per indent level (tabs count as 4).</li>
+    <li>One statement per line; blank lines ignored.</li>
+    <li>Header block first: <code>vt.init</code>, optional <code>*.vth</code> lines, <code>(main)</code>, <code>branch</code>.</li>
+    <li>Max source size: 10&nbsp;MB per file (2&nbsp;MB per header).</li>
+  </ul>
+
+  <h2 class="sec">.vth header libraries</h2>
+  <ul>
+    <li>Same syntax as <code>.vt</code>, but level-0 lines may only be comments, header lines, or <code>vectfn</code> definitions — executable top-level code is rejected.</li>
+    <li>Resolved relative to the file naming them; nest freely; each file loads once (repeats skipped, cycles safe).</li>
+    <li>Line numbers in errors carry the header filename.</li>
+  </ul>
+
+  <h2 class="sec">.kv store files</h2>
+  <p>Written by <code>kvsave</code>, read by <code>kvopen</code>. Text format, one record per line, length-prefixed so any bytes are safe:</p>
+<pre><code>T&lt;klen&gt;:&lt;key&gt;&lt;vlen&gt;:&lt;value&gt;\n</code></pre>
+  <table>
+    <tr><th>Tag</th><th>Type</th><th>Example</th></tr>
+    <tr><td><code>S</code></td><td>string</td><td><code>S4:name4:vect</code></td></tr>
+    <tr><td><code>I</code></td><td>int</td><td><code>I5:score2:99</code></td></tr>
+    <tr><td><code>F</code></td><td>float</td><td><code>F2:pi4:3.14</code></td></tr>
+  </table>
+  <p>Hand-editable in a text editor. A malformed file halts with <code>Corrupt store</code> — delete it to start fresh. Missing file on <code>kvopen</code> starts empty (created on first <code>kvsave</code>).</p>
+
+  <h2 class="sec">.vt line grammar (informal)</h2>
+  <p>Every non-blank line is exactly one of these, in matching order (first match wins):</p>
+  <table>
+    <tr><th>#</th><th>Form</th><th>Example</th></tr>
+    <tr><td>1</td><td>Header (<code>vt.init</code>, <code>*.vth</code>, <code>(main)</code>, <code>branch</code>, <code>vect</code>)</td><td><code>vt.init</code></td></tr>
+    <tr><td>2</td><td><code>vectfn name.a, b</code></td><td><code>vectfn add.a, b</code></td></tr>
+    <tr><td>3</td><td><code>rtn expr</code></td><td><code>rtn sum</code></td></tr>
+    <tr><td>4</td><td><code>if cond</code> / <code>els</code></td><td><code>if x &gt; 10</code></td></tr>
+    <tr><td>5</td><td><code>loN</code> / <code>loNw cond</code></td><td><code>lo10w done == 0</code></td></tr>
+    <tr><td>6</td><td>I/O &amp; stores (<code>echo echow in set fopen fwrite fclose kvopen kvset kvdel kvsave kvclose vga pout</code>)</td><td><code>echow sec, 200</code></td></tr>
+    <tr><td>7</td><td><code>(target.rest)</code></td><td><code>(c.a+b)</code></td></tr>
+    <tr><td>8</td><td><code>name(...)</code> — call or array alloc</td><td><code>arr(5)</code></td></tr>
+    <tr><td>9</td><td><code>name"lit"</code> string assign</td><td><code>msg"hi"</code></td></tr>
+    <tr><td>10</td><td><code>nameDigits</code> int assign</td><td><code>x10</code></td></tr>
+    <tr><td>11</td><td><code>nameFloat</code> float assign</td><td><code>y3.14</code></td></tr>
+  </table>
+  <p>Anything else is <code>Unknown statement</code>. Note rule 6 beats rule 10: a line starting with a keyword is a statement even if it ends in digits (<code>ind0</code> assigns because <code>in</code> requires a space or paren after it — same guarding applies to <code>lo</code>/<code>vga</code>/<code>pout</code>).</p>
+
+  <h2 class="sec">Name rules</h2>
+  <ul>
+    <li>Start with a letter or <code>_</code>, then letters/digits/<code>_</code>.</li>
+    <li>Trailing digits on a bare token are the value (<code>count100</code>), so digits inside names only survive when followed by non-digits.</li>
+    <li>Reserved in target expressions: <code>sqrt bit get len char cmp cat clock chr fread kvget kvexists</code> — don't name functions these.</li>
+    <li>Case-sensitive: <code>Score</code> and <code>score</code> are different variables.</li>
+  </ul>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

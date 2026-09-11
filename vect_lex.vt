@@ -1,0 +1,238 @@
+vt.init
+mvga.vth
+(main)
+branch
+cmt vect stage-1 line tokenizer - 25% of the Vect lexer
+cmt stages done: file load, line split, indent, cmt strip, classify
+cmt later stages: expression tokens, full splits, codegen
+vectfn is_digit.c
+    if c >= 48
+        if c <= 57
+            rtn 1
+    rtn 0
+vectfn is_alpha.c
+    if c >= 65
+        if c <= 90
+            rtn 1
+    if c >= 97
+        if c <= 122
+            rtn 1
+    if c == 95
+        rtn 1
+    rtn 0
+vectfn has_char.s, want
+    (n.len s)
+    i0
+    lo10000w i < n
+        (c.char s, i)
+        if c == want
+            rtn 1
+        (i.i+1)
+    rtn 0
+vectfn firstword.s
+    out""
+    (n.len s)
+    i0
+    lo10000w i < n
+        (c.char s, i)
+        if c == 32
+            (i.n)
+        els
+            (ch.chr c)
+            (out.cat out, ch)
+            (i.i+1)
+    rtn out
+vectfn startswith.s, w
+    (n.len w)
+    (m.len s)
+    if m < n
+        rtn 0
+    (bad0)
+    i0
+    lo10000w i < n
+        (a.char s, i)
+        (b.char w, i)
+        if a != b
+            bad1
+        (i.i+1)
+    if bad == 1
+        rtn 0
+    rtn 1
+vectfn endswith.s, w
+    (n.len w)
+    (m.len s)
+    if m < n
+        rtn 0
+    (bad0)
+    (start.m-n)
+    i0
+    lo10000w i < n
+        (idx.start+i)
+        (a.char s, idx)
+        (b.char w, i)
+        if a != b
+            bad1
+        (i.i+1)
+    if bad == 1
+        rtn 0
+    rtn 1
+vectfn is_assign.s
+    (n.len s)
+    if n == 0
+        rtn 0
+    (bad0)
+    i0
+    lo10000w i < n
+        (c.char s, i)
+        if c == 32
+            bad1
+        if c == 34
+            bad1
+        if c == 40
+            bad1
+        if c == 41
+            bad1
+        if c == 44
+            bad1
+        (i.i+1)
+    if bad == 1
+        rtn 0
+    (lm.n-1)
+    (last.char s, lm)
+    (d.is_digit last)
+    if d == 1
+        rtn 1
+    rtn 0
+vectfn tokline.line, lineno
+    (n.len line)
+    ind0
+    stop0
+    lo10000w stop == 0
+        if ind >= n
+            stop1
+        els
+            (c.char line, ind)
+            if c == 32
+                (ind.ind+1)
+            els
+                stop1
+    (level.ind/4)
+    rest""
+    i0
+    lo10000w i < n
+        if i >= ind
+            (c.char line, i)
+            (ch.chr c)
+            (rest.cat rest, ch)
+        (i.i+1)
+    code""
+    (m.len rest)
+    j0
+    incomment0
+    lo10000w j < m
+        (c.char rest, j)
+        (jp1.j+1)
+        (jp2.j+2)
+        if incomment == 0
+            if c == 99
+                if jp2 < m
+                    (c2.char rest, jp1)
+                    if c2 == 109
+                        (c3.char rest, jp2)
+                        if c3 == 116
+                            incomment1
+        if incomment == 0
+            (ch.chr c)
+            (code.cat code, ch)
+        (j.j+1)
+    (w.firstword code)
+    (kind"UNKNOWN")
+    if code == ""
+        kind"BLANK"
+    els
+        if w == "vectfn"
+            kind"FUNCDEF"
+        els
+            if w == "if"
+                kind"IF"
+            els
+                if w == "els"
+                    kind"ELSE"
+                els
+                    (islo.startswith code, "lo")
+                    if islo == 1
+                        kind"LO"
+                    els
+                        if w == "echo"
+                            kind"ECHO"
+                        els
+                            if w == "in"
+                                kind"STMT"
+                            els
+                                if w == "set"
+                                    kind"STMT"
+                                els
+                                    if w == "vt.init"
+                                        kind"HEADER"
+                                    els
+                                        if w == "branch"
+                                            kind"HEADER"
+                                        els
+                                            if w == "(main)"
+                                                kind"HEADER"
+                                            els
+                                                (ishdr.endswith code, ".vth")
+                                                if ishdr == 1
+                                                    kind"HEADER"
+                                                els
+                                                    (isas.is_assign code)
+                                                    if isas == 1
+                                                        kind"ASSIGN"
+                                                    els
+                                                        (f0.char code, 0)
+                                                        (lm.m-1)
+                                                        (ll.char code, lm)
+                                                        if f0 == 40
+                                                            if ll == 41
+                                                                kind"TARGET"
+                                                            els
+                                                                kind"UNKNOWN"
+                                                        els
+                                                            (hasp.has_char code, 40)
+                                                            if hasp == 1
+                                                                kind"CALL"
+    (o1.cat "tok|", lineno)
+    (o2.cat o1, "|")
+    (o3.cat o2, level)
+    (o4.cat o3, "|")
+    (o5.cat o4, kind)
+    (o6.cat o5, "|")
+    (o7.cat o6, code)
+    echo o7
+vectfn main
+    echo "file:"
+    in(path)
+    fopen fh, path, "r"
+    (src.fread fh, 64000)
+    fclose fh
+    (n.len src)
+    echo "chars:"
+    echo n
+    cur""
+    lineno1
+    i0
+    lo64000w i < n
+        (c.char src, i)
+        if c == 10
+            (t.tokline cur, lineno)
+            cur""
+            (lineno.lineno+1)
+        els
+            if c != 13
+                (ch.chr c)
+                (cur.cat cur, ch)
+        (i.i+1)
+    if cur == ""
+    els
+        (t.tokline cur, lineno)
+main()

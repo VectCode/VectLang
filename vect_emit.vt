@@ -1,0 +1,24 @@
+vt.init
+mvga.vth
+(main)
+branch
+cmt vect bytecode emitter 2.5% - text assembly for push/echo/halt
+cmt additive only, rewrites nothing
+vectfn emit_push.v
+    (s.cat "push_int ", v)
+    rtn s
+vectfn emit_echo
+    rtn "echo"
+vectfn emit_halt
+    rtn "halt"
+vectfn main
+    echo "x10 compiles to:"
+    (p.emit_push 10)
+    echo p
+    echo "store 0"
+    echo "load 0"
+    (e.emit_echo)
+    echo e
+    (h.emit_halt)
+    echo h
+main()

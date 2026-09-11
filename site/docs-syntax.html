@@ -59,6 +59,16 @@ msg"hi"      cmt string assignment</code></pre>
   </table>
   <p>Mixing ints and floats promotes to float: <code>(m.a+y)</code> with <code>a10</code>, <code>y3.14</code> gives <code>13.14</code>. Division by zero halts the program immediately.</p>
 
+  <h2 class="sec">The four value types</h2>
+  <table>
+    <tr><th>Type</th><th>Looks like</th><th>Notes</th></tr>
+    <tr><td>int</td><td><code>x10</code>, <code>-3</code></td><td>64-bit; <code>/</code> truncates; <code>%</code> keeps sign of left</td></tr>
+    <tr><td>float</td><td><code>y3.14</code></td><td>64-bit; any float operand makes the whole op float</td></tr>
+    <tr><td>string</td><td><code>msg"hi"</code>, <code>"lit"</code></td><td>Byte strings; numeric strings auto-parse in math</td></tr>
+    <tr><td>array</td><td><code>arr(5)</code></td><td>Ints only, fixed size, zeroed, bounds-checked</td></tr>
+  </table>
+  <p>There are no declarations and no conversions to memorize: values carry their type, operations promote (<code>int+float→float</code>), and mismatches halt loudly instead of guessing silently.</p>
+
   <h2 class="sec">Comments</h2>
   <p><code>cmt</code> starts a comment that runs to end of line — full-line or trailing:</p>
 <pre><code>cmt a full line note

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>Support</h1>
+
+  <h2 class="sec">Which inbox?</h2>
+  <table>
+    <tr><th>Address</th><th>Use for</th></tr>
+    <tr><td><a href="mailto:vectlangsupport@proton.me">vectlangsupport@proton.me</a></td><td>Bugs, install trouble, how-to questions. Include reproducers (below).</td></tr>
+    <tr><td><a href="mailto:vectlang@proton.me">vectlang@proton.me</a></td><td>Official contact: press, partnerships, business, commercial licensing.</td></tr>
+  </table>
+  <p>Support mail is triaged automatically; anything the bot can't answer is handed to a human. If a reply didn't help, just reply again saying so.</p>
+
+  <h2 class="sec">Bug report template</h2>
+  <p>Copy, fill, send. Reports with reproducers get fixed first.</p>
+<pre><code>Vect version:  (vect --version)
+Command run:   (e.g. vect program.vt)
+Expected:      (what should happen)
+Actual:        (full error output, pasted)
+Program:       (attach the smallest .vt that breaks)</code></pre>
+
+  <h2 class="sec">Response expectations</h2>
+  <ul>
+    <li>Crashes / wrong output with reproducer: first priority.</li>
+    <li>Install and usage questions: best effort, usually within days.</li>
+    <li>Feature requests: collected for roadmap planning, no promises per release.</li>
+  </ul>
+
+  <h2 class="sec">Before you email: 60-second self-help</h2>
+  <ol>
+    <li>Run <code>vect --version</code> — half of all reports are fixed by updating.</li>
+    <li>Read the error line number, open that line. 80% end here.</li>
+    <li>Search the <a href="errors.html">error catalog</a> for the message.</li>
+    <li>Reduce to the smallest program that still breaks (delete half, re-run, repeat).</li>
+    <li>Still broken? Send the small program + full output. You'll usually get back a fix, not questions.</li>
+  </ol>
+
+  <h2 class="sec">Security</h2>
+  <p>Found something that looks like a vulnerability (rather than a normal bug)? Mark the subject <code>[security]</code> and it skips the bot queue. Every release is VirusTotal-scanned before announcement regardless.</p>
+
+  <h2 class="sec">Commercial use</h2>
+  <p>Running your own programs is covered by the free-use terms in <code>TERMS.txt</code>. Redistributing the compiler, embedding it, or building products on the toolchain needs a conversation first: <a href="mailto:vectlang@proton.me">vectlang@proton.me</a>.</p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

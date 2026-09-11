@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VS Code extension — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl on" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>VS Code extension</h1>
+
+  <h2 class="sec">Install (manual, for now)</h2>
+  <ol>
+    <li>Open the <code>vscode-vect</code> folder from the repo in VS Code.</li>
+    <li>Press <code>F5</code> — an Extension Development Host opens with Vect enabled.</li>
+    <li>Open any <code>.vt</code> file there. Marketplace publishing is planned.</li>
+  </ol>
+
+  <h2 class="sec">Features</h2>
+  <ul>
+    <li>Syntax highlighting for <code>.vt</code>/<code>.vth</code>: keywords, target expressions, compact assigns, loops, strings, comments.</li>
+    <li><code>cmt</code> comment toggling (<code>Ctrl+/</code>) and auto-indent after <code>vectfn</code>/<code>if</code>/<code>els</code>/<code>lo</code>.</li>
+    <li>Snippets: <code>vheader</code>, <code>vectfn</code>, <code>vif</code>, <code>vlo</code>, <code>vlow</code>, <code>vmath</code>, <code>varr</code>, <code>vfile</code>, <code>vkv</code>, <code>vclock</code>, <code>vecho</code>.</li>
+  </ul>
+
+  <h2 class="sec">Report issues</h2>
+  <p>Wrong colors, missing keywords, bad indent? Send the snippet + a screenshot to <a href="mailto:vectlangsupport@proton.me">vectlangsupport@proton.me</a>.</p>
+
+  <h2 class="sec">Snippet cheat sheet</h2>
+  <table>
+    <tr><th>Trigger</th><th>Expands to</th></tr>
+    <tr><td><code>vheader</code></td><td>Full file header + <code>main</code> skeleton</td></tr>
+    <tr><td><code>vectfn</code></td><td>Function with params + <code>rtn</code></td></tr>
+    <tr><td><code>vif</code></td><td><code>if</code>/<code>els</code> block</td></tr>
+    <tr><td><code>vlo</code> / <code>vlow</code></td><td>Fixed / conditional loop</td></tr>
+    <tr><td><code>vmath</code></td><td><code>(target.expression)</code></td></tr>
+    <tr><td><code>varr</code></td><td>Alloc + set + get</td></tr>
+    <tr><td><code>vfile</code> / <code>vkv</code></td><td>File open/write/close · KV block</td></tr>
+    <tr><td><code>vclock</code></td><td>Timing block (<code>clock</code> before/after)</td></tr>
+    <tr><td><code>vecho</code></td><td><code>echo</code></td></tr>
+  </table>
+
+  <h2 class="sec">Troubleshooting</h2>
+  <table>
+    <tr><th>Symptom</th><th>Fix</th></tr>
+    <tr><td>No highlighting in normal window</td><td>Expected — F5 host only, until Marketplace publish</td></tr>
+    <tr><td><code>Tab</code> doesn't expand snippet</td><td>Press <code>Tab</code> right after the trigger with no space; check language mode (bottom-right) says Vect</td></tr>
+    <tr><td>Indent wrong after Enter</td><td>Rules trigger on <code>vectfn/if/els/lo</code> lines; report the exact line that misbehaves</td></tr>
+  </table>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

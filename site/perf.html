@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performance — Vect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html"><b>◢</b> Vect</a>
+  <a class="nl" href="index.html">Home</a>
+  <a class="nl" href="examples.html">Examples</a>
+  <a class="nl" href="docs.html">Docs</a>
+  <a class="nl" href="download.html">Download</a>
+  <span class="sp"></span><span class="badge">v0.2.4 · .vt</span>
+</div></header>
+
+<main class="wrap">
+  <p style="margin-top:28px"><a href="docs.html">← Docs</a></p>
+  <h1>Performance</h1>
+  <p style="color:var(--mut)">Honest numbers only. Vect is a bytecode VM: scripting-language speed today, native compilation on the roadmap.</p>
+
+  <h2 class="sec">Measure it yourself</h2>
+<pre><code>(t0.clock)
+lo1000
+    (x.x+1)
+(t1.clock)
+(elapsed.t1 - t0)
+echo elapsed      cmt ms for 1000 loop iterations</code></pre>
+  <p>Or from outside: <code>Measure-Command { vect sieve.vt }</code>. Don't trust any benchmark (including ours) without the program attached.</p>
+
+  <h2 class="sec">Hard limits</h2>
+  <table>
+    <tr><th>Resource</th><th>Limit</th><th>When hit</th></tr>
+    <tr><td>Call frames</td><td>64 deep</td><td><code>Call stack overflow</code></td></tr>
+    <tr><td>Operand stack</td><td>512 values / frame</td><td><code>Stack overflow</code></td></tr>
+    <tr><td>Source file</td><td>10 MB (2 MB headers)</td><td>Refused at load</td></tr>
+    <tr><td>Arrays / reads</td><td>1,000,000 items</td><td><code>Bad array/read size</code></td></tr>
+    <tr><td>Loop iterations</td><td>Counter cap in <code>loN</code></td><td>Loop simply ends</td></tr>
+  </table>
+
+  <h2 class="sec">Writing fast Vect</h2>
+  <ul>
+    <li>Hoist loop invariants: compute <code>(n.len s)</code> once before the loop, not inside it.</li>
+    <li>Prefer ints over floats and <code>cat</code>-building big strings in hot loops (each <code>cat</code> allocates).</li>
+    <li>Use <code>get</code>/<code>set</code> on arrays instead of rebuilding strings as buffers.</li>
+    <li>Deep <code>if</code> nesting is free; deep <em>call</em> recursion is not (64 frames).</li>
+  </ul>
+
+  <h2 class="sec">Roadmap</h2>
+  <p>Native AOT compilation (0.3) removes the interpreter loop entirely — the same programs, machine code. Until then, this page is the whole truth.</p>
+
+  <h2 class="sec">Memory model (why it's shaped this way)</h2>
+  <p>Three layers, each with its own budget — understanding them explains every limit above:</p>
+  <ul>
+    <li><b>Slots</b> — each function gets fixed variable cells (params first), allocated once per call. Variable access is a single array index: no dictionaries, no lookup cost, ever.</li>
+    <li><b>Operand stack</b> — expression evaluation pushes/pops here (512 slots per frame). Deep expressions cost stack, not heap.</li>
+    <li><b>Arena</b> — strings, arrays, and stores allocate from one arena freed at exit. No garbage collector pauses, no per-object bookkeeping — the price is that memory only grows within a run.</li>
+  </ul>
+  <p>Practical reads: keep hot data in slots/arrays (cheap), avoid rebuilding big strings per iteration (each <code>cat</code> is a fresh allocation), and treat the 64-frame cap as a recursion budget, not a suggestion.</p>
+
+  <h2 class="sec">What "fast enough" means here</h2>
+  <p>Vect optimizes for <em>programs that finish before you notice</em>: CLIs, small games, file tools, boot-time scripts. A 100-iteration game loop, a 25-prime sieve, a 100-line FizzBuzz — all sub-second with room to spare. If your program needs minutes of number-crunching, that's what the 0.3 native backend is for; write it in Vect anyway and recompile later.</p>
+</main>
+
+<footer><div class="wrap"><span>Vect language · v0.2.4</span><span style="flex:1"></span><a href="docs.html">Docs</a><a href="download.html">Download</a><a href="https://www.youtube.com/@VectLang">YouTube</a><a href="https://github.com/VectCode/VectLang">GitHub</a><a href="https://dev.to/vectlang">Blog</a><a href="mailto:vectlang@proton.me">Contact</a><a href="mailto:vectlangsupport@proton.me">Support</a></div></footer>
+<script src="site.js"></script>
+</body>
+</html>

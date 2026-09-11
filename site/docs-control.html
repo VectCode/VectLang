@@ -53,6 +53,25 @@ vectfn main
 main()</code></pre>
   <p>Plain calls like <code>main()</code> discard the return value. Parameters are bound per call, so recursion works.</p>
 
+  <h2 class="sec">Recursion</h2>
+  <p>Each call gets a fresh frame (own slots, own stack), up to 64 deep:</p>
+<pre><code>vectfn fact.n
+    if n == 0
+        rtn 1
+    (m.n-1)
+    (r.fact m)
+    (p.r*n)
+    rtn p</code></pre>
+  <p>Prefer loops for counting (no depth cost); save recursion for naturally recursive shapes like trees and divides.</p>
+
+  <h2 class="sec">Loop counter idiom</h2>
+  <p>Counters are ordinary variables — initialize right before the loop, step at the bottom, and never reuse one across loops:</p>
+<pre><code>i0
+lo100w i &lt; n
+    ...
+    (i.i+1)</code></pre>
+  <p>Need out early? Flip a flag and make it the loop condition (<code>lo100w done == 0</code>) — there is no <code>break</code> by design.</p>
+
   <p style="color:var(--mut)">Next: <a href="docs-data.html">3 · Data &amp; I/O →</a></p>
 </main>
 
