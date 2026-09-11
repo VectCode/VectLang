@@ -24,8 +24,9 @@ a:hover { text-decoration: underline; }
 /* nav */
 .nav { border-bottom: 1px solid var(--line); background: #0d1119cc; position: sticky; top: 0; backdrop-filter: blur(8px); z-index: 10; }
 .nav .wrap { display: flex; align-items: center; gap: 22px; padding-top: 12px; padding-bottom: 12px; }
-.logo { font-weight: 800; font-size: 20px; letter-spacing: .5px; color: var(--txt); }
+.logo { font-weight: 800; font-size: 20px; letter-spacing: .5px; color: var(--txt); display: inline-flex; align-items: center; gap: 9px; }
 .logo b { color: var(--acc); }
+.logo img { height: 24px; width: 24px; }
 .nav a.nl { color: var(--mut); font-weight: 600; }
 .nav a.nl:hover, .nav a.nl.on { color: var(--txt); }
 .nav .sp { flex: 1; }
